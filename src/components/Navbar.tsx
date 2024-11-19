@@ -3,10 +3,17 @@ import MaxWidthWrapper from './MaxWidthWrapper'
 import { Icons } from './Icons'
 import Link from 'next/link'
 import NavItems from './NavItems'
+import { SignedIn, SignedOut, UserButton } from '@clerk/nextjs'
+import { buttonVariants } from './ui/button'
+import { currentUser } from '@clerk/nextjs/server'
 
-const Navbar = () => {
+const Navbar = async () => {
+
+    const user = await currentUser();
+
+
     return (
-        <div className='bg-white sticky z-50 top-0 inset-x-0 h-60'>
+        <div className='bg-white sticky z-50 top-0 inset-x-0 h-16'>
             <header className='relative bg-white'>
                 <MaxWidthWrapper>
                     <div className='border-b border-gray-200'>
@@ -22,6 +29,47 @@ const Navbar = () => {
                             <div className='hidden z-50 lg:ml-8 lg:block lg:self-stretch'>
 
                                 <NavItems />
+                            </div>
+                            <div className='ml-auto flex items-center'>
+
+                                <div className='hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-6'>
+
+                                    <SignedOut>
+                                        <Link href={'/sign-in'} className={buttonVariants({
+                                            variant: 'ghost',
+                                        })}>
+                                            Sign In
+                                        </Link>
+                                    </SignedOut>
+
+                                    <SignedIn>
+                                        <span aria-hidden="true">
+                                            {user?.username?.toUpperCase()}
+                                        </span>
+                                    </SignedIn>
+
+                                    <span className='h-6 w-px bg-gray-200' aria-hidden="true" />
+
+
+
+
+                                    <SignedOut>
+                                        <Link href={'/sign-up'} className={buttonVariants({
+                                            variant: 'ghost',
+                                        })}>
+                                            Create Account
+                                        </Link>
+                                    </SignedOut>
+
+
+                                    <SignedIn>
+                                        <UserButton />
+                                    </SignedIn>
+
+
+
+                                </div>
+
                             </div>
                         </div>
                     </div>

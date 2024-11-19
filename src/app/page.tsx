@@ -5,20 +5,20 @@ import Link from "next/link";
 
 
 const PERKS = [
-  
+
   {
     title: "Authorization",
-    icon: <Lock className="w-1/3 h-1/3"/>,
+    icon: <Lock className="w-1/3 h-1/3" />,
     description: "Authorization is the process of giving someone permission to do or have something.",
   },
   {
     title: "Security",
-    icon: <Shield className="w-1/3 h-1/3"/>,
+    icon: <Shield className="w-1/3 h-1/3" />,
     description: "Security is the degree of resistance to, or protection from, harm.",
   },
   {
     title: "Performance",
-    icon: <BarChart className="w-1/3 h-1/3"/>,
+    icon: <BarChart className="w-1/3 h-1/3" />,
     description: "Performance is the degree to which a system or machine performs its designated functions.",
   }
 ]
@@ -29,12 +29,14 @@ export default function Home() {
       <MaxWidthWrapper>
         <div className="py-20 mx-auto text-center flex flex-col items-center max-w-3xl">
           <h1 className="text-4xl font-bold tracking-tight text-black sm:text-6xl">
-            Let's learn Next.js together!
-            <span className="text-yellow-400">&nbsp;Slacky 300</span>
+            Deploy Smarter with
+            <span className="text-yellow-400">&nbsp;CargoDeploy</span>
           </h1>
-          <p className="mt-6 text-lg max-w-prose text-muted-foreground">Welcome to AuthTutorials. Authentication is a crucial part
-            for any application, it is a building block for any application.
+          <p className="mt-6 text-lg max-w-prose text-muted-foreground">
+            Automate frontend builds, store assets with AWS S3, and deliver seamlessly via a Node.js reverse proxy. Scalable, efficient, and built for modern frameworks like React and Vite.
           </p>
+
+
           <div className="flex flex-col sm:flex-row gap-4 mt-6">
             <Link href='/product' className={buttonVariants()}>
               Get Started
