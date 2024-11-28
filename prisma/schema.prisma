@@ -1,0 +1,102 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Plan {
+    FREE
+    PRO
+}
+
+enum DeploymentStatus {
+    PENDING
+    IN_PROGRESS
+    SUCCESS
+    FAILED
+}
+
+model User {
+    id         String  @id @default(cuid())
+    externalId String? @unique
+
+    quotaLimit Int
+    plan       Plan @default(FREE)
+
+    email  String? @unique
+    username String? @unique 
+    name     String?
+    avatar   String?
+    apiKey String @unique @default(cuid())
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    Projects Project[]
+
+}
+
+model EnvironmentVariables {
+    id String @id @default(cuid())
+
+    key String @unique
+    value String
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    project Project @relation(fields: [id], references: [id])
+}
+
+model Project{
+
+    id String @id @default(cuid())
+    
+    name String @unique
+
+    user User @relation(fields: [id], references: [id])
+
+    gitHubRepoURL String @unique
+    slugIdentifier String @unique
+    rootDir String
+    envVars EnvironmentVariables[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    Deployments Deployment[]
+}
+
+model Deployment {
+    id String @id @default(cuid())
+
+    project Project @relation(fields: [id], references: [id])
+
+    status DeploymentStatus @default(PENDING)
+
+    containerId String?
+    Logs Log[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model Log {
+    id String @id @default(cuid())
+
+    deployment Deployment @relation(fields: [id], references: [id])
+
+    message String
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}

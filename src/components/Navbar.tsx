@@ -5,11 +5,9 @@ import Link from 'next/link'
 import NavItems from './NavItems'
 import { SignedIn, SignedOut, UserButton } from '@clerk/nextjs'
 import { buttonVariants } from './ui/button'
-import { currentUser } from '@clerk/nextjs/server'
 
 const Navbar = async () => {
 
-    const user = await currentUser();
 
 
     return (
@@ -44,7 +42,9 @@ const Navbar = async () => {
 
                                     <SignedIn>
                                         <span aria-hidden="true">
-                                            {user?.username?.toUpperCase()}
+                                            <Link href={'/dashboard'} className='text-gray-900 font-medium'>
+                                                Dashboard
+                                            </Link>
                                         </span>
                                     </SignedIn>
 
