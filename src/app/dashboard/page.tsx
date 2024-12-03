@@ -5,9 +5,10 @@ import { redirect } from 'next/navigation';
 
 const Page = async () => {
 
-  const {userId} = await auth();
+  const { userId } = await auth();
 
-  if(!userId){
+
+  if (!userId) {
     redirect("/sign-in");
   }
 
@@ -17,14 +18,16 @@ const Page = async () => {
     }
   });
 
-  if(!user){
+  if (!user) {
     redirect("/welcome");
   }
+
   
-  
+
+
   return (
     <DashboardPage title='Dashboard'>
-        Dashobard Page Content
+      Dashobard Page Content
     </DashboardPage>
   )
 }

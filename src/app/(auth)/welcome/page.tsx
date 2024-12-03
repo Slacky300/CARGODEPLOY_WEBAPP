@@ -1,9 +1,7 @@
 "use client"
 
-
 import { Heading } from "@/components/Heading"
 import { LoadingSpinner } from "@/components/LoadingSpinner"
-import MaxWidthWrapper from "@/components/MaxWidthWrapper"
 import { useQuery } from "@tanstack/react-query"
 import { LucideProps } from "lucide-react"
 import { useRouter } from "next/navigation"

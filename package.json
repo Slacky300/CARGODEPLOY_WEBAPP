@@ -9,8 +9,10 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@clerk/clerk-sdk-node": "^5.0.69",
     "@clerk/nextjs": "^6.4.0",
     "@prisma/client": "^5.22.0",
+    "@radix-ui/react-dialog": "^1.1.2",
     "@radix-ui/react-slot": "^1.1.0",
     "@tanstack/react-query": "^5.61.4",
     "class-variance-authority": "^0.7.0",
@@ -18,10 +20,13 @@
     "express": "^4.21.1",
     "lucide-react": "^0.460.0",
     "next": "15.0.3",
+    "octokit": "^4.0.2",
     "react": "19.0.0-rc-66855b96-20241106",
     "react-dom": "19.0.0-rc-66855b96-20241106",
     "tailwind-merge": "^2.5.4",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "valu": "^0.6.0",
+    "vaul": "^1.1.1"
   },
   "devDependencies": {
     "@tanstack/eslint-plugin-query": "^5.61.4",
