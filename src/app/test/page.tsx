@@ -71,7 +71,7 @@ const TestForm = () => {
         <h2 className="text-2xl font-semibold text-gray-700 mb-6 text-center">
           Test Form
         </h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={(e) => handleSubmit(e)} className="space-y-4">
           {/* Name Field */}
           <div>
             <label htmlFor="name" className="block text-sm font-medium text-gray-700">

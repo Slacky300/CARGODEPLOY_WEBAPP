@@ -2,6 +2,10 @@ import DashboardPage from '@/components/DashboardPage';
 import prisma from '@/lib/db';
 import { auth } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
+import { DashboardPageContent } from './DashboardPageContent';
+import { CreateProjectModal } from '@/components/CreateProjectModal';
+import { Button } from '@/components/ui/button';
+import { PlusIcon } from 'lucide-react';
 
 const Page = async () => {
 
@@ -22,12 +26,22 @@ const Page = async () => {
     redirect("/welcome");
   }
 
-  
+
 
 
   return (
-    <DashboardPage title='Dashboard'>
-      Dashobard Page Content
+    <DashboardPage 
+    cta={
+      <CreateProjectModal>
+        <Button className="w-full sm:w-fit">
+          <PlusIcon className="size-4 mr-2" />
+          Add Category
+        </Button>
+      </CreateProjectModal>
+    }
+    
+    title='Your Deployments'>
+     <DashboardPageContent />
     </DashboardPage>
   )
 }

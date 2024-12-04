@@ -1,27 +1,53 @@
-import React from 'react'
-import { Button } from './ui/button';
-import { ArrowLeft } from 'lucide-react';
+"use client"
+
+import { ReactNode } from "react"
+import { Button } from "./ui/button"
+import { ArrowLeft } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { Heading } from "./Heading"
 
 interface DashboardPageProps {
-    title: string;
-    children?: React.ReactNode;
-    hideBackButton?: boolean;
-    cta?: React.ReactNode;
+  title: string
+  children?: ReactNode
+  hideBackButton?: boolean
+  cta?: ReactNode
 }
 
-const DashboardPage = ({ title, children, cta, hideBackButton }: DashboardPageProps) => {
-    return (
-        <section className='flex-1 h-full w-full flex flex-col'>
-            <div className='p-6 sm:p-8 flex justify-between border-b border-gray-200'>
-                <div className='flex flex-col sm:flex-row sm:items-center gap-y-2 gap-x-8'>
-                    {hideBackButton ? null : <Button className='w-fit bg-white' variant={"outline"}>
-                        <ArrowLeft className='size-4'/>
-                    </Button>}
-                </div>
-             
-            </div>
-        </section>
-    )
+const DashboardPage = ({
+  title,
+  children,
+  cta,
+  hideBackButton,
+}: DashboardPageProps) => {
+  const router = useRouter()
+
+  return (
+    <section className="flex-1 h-full w-full flex flex-col">
+      <div className="w-full p-6 sm:p-8 flex justify-between border-b border-gray-200">
+        <div className="w-full flex flex-col sm:flex-row items-start sm:items-center gap-6">
+          <div className="flex  gap-8">
+            {hideBackButton ? null : (
+              <Button
+                onClick={() => router.push("/")}
+                className="w-fit bg-white"
+                variant="outline"
+              >
+                <ArrowLeft className="size-4" />
+              </Button>
+            )}
+
+            <h4 className="text-2xl font-medium text-gray-900">{title}</h4>
+          </div>
+
+          {cta ? <div className="">{cta}</div> : null}
+        </div>
+      </div>
+
+      <div className="flex-1 p-6 sm:p-8 flex flex-col overflow-y-auto">
+        {children}
+      </div>
+    </section>
+  )
 }
 
-export default DashboardPage
+export default DashboardPage;

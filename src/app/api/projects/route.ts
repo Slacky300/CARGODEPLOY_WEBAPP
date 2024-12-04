@@ -3,10 +3,6 @@ import { auth } from "@clerk/nextjs/server"
 import { NextRequest, NextResponse } from "next/server";
 
 
-interface EnvVar{
-    key: string;
-    value: string;
-}
 
 export const GET = async () => {
     const {userId} =  await auth();
@@ -37,10 +33,11 @@ export const GET = async () => {
 
     return NextResponse.json({
         status: 200,
-        userProjects
+        projects: userProjects
     });
 
 }
+
 
 
 export const POST = async (req: NextRequest, res: NextResponse) => {
@@ -66,7 +63,15 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
         });
     }
 
-    const { name, gitHubRepoURL, slugIdentifier, rootDir, envVars } = await req.json();
+    const body = await req.json();
+
+    if(!body) return NextResponse.json({
+        status: 400,
+        success: false,
+        error: "Please provide body required fields"
+    });
+
+    const { name, gitHubRepoURL, slugIdentifier, rootDir, envVars } = body;
 
     if(!name || !gitHubRepoURL || !slugIdentifier || !rootDir){
         return NextResponse.json({
@@ -76,16 +81,22 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
         });
     }
 
-    const doesProjectExist = await prisma.project.findUnique({
-        where: { slugIdentifier }
+    const doesProjectExist = await prisma.project.findFirst({
+        where: {
+            OR: [
+                { slugIdentifier },
+                { name },
+                { gitHubRepoURL }
+            ]
+        }
     });
-
+    
 
     if (doesProjectExist) {
         return NextResponse.json({
             status: 400,
             success: false,
-            error: `Project with slug ${slugIdentifier} already exists`
+            error: `Project with slug/githubRepo/name already exists`
         });
     }
 

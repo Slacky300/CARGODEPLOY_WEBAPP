@@ -76,10 +76,9 @@ export const Modal = ({
         }
       }}
     >
-      <DialogTitle className="sr-only">
-      </DialogTitle>
-      <DialogContent aria-describedby="description just to avoid errors">
       
+      <DialogContent aria-describedby="description just to avoid errors">
+        <DialogTitle></DialogTitle>
         {children}</DialogContent>
     </Dialog>
   )

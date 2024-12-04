@@ -6,6 +6,8 @@ import { cn } from "@/lib/utils"
 import { UserButton } from "@clerk/nextjs"
 import { Gem, Home, Key, LucideIcon, Menu, Settings, X } from "lucide-react"
 import Link from "next/link"
+import { usePathname, useRouter } from "next/navigation"
+import { NextRouter } from "next/router"
 import { PropsWithChildren, useState } from "react"
 
 interface SidebarItem {
@@ -42,6 +44,11 @@ const SIDEBAR_ITEMS: SidebarCategory[] = [
 ]
 
 const Sidebar = ({ onClose }: { onClose?: () => void }) => {
+
+  const pathname = usePathname();
+  console.log(pathname);
+
+
   return (
     <div className="space-y-4 md:space-y-6 relative z-20 flex flex-col h-full">
       {/* logo */}
@@ -64,13 +71,16 @@ const Sidebar = ({ onClose }: { onClose?: () => void }) => {
                     href={item.href}
                     className={cn(
                       buttonVariants({ variant: "ghost" }),
-                      "w-full justify-start group flex items-center gap-x-2.5 rounded-md px-2 py-1.5 text-sm font-medium leading-6 text-zinc-700 hover:bg-gray-50 transition"
+                      pathname === item.href 
+                        ? "bg-zinc-200 w-full justify-start group flex items-center gap-x-2.5 rounded-md px-2 py-1.5 text-sm font-medium leading-6 text-zinc-700 hover:bg-gray-50 transition"
+                        : "w-full justify-start group flex items-center gap-x-2.5 rounded-md px-2 py-1.5 text-sm font-medium leading-6 text-zinc-700 hover:bg-gray-50 transition"
                     )}
                     onClick={onClose}
                   >
                     <item.icon className="size-4 text-zinc-500 group-hover:text-zinc-700" />
                     {item.text}
                   </Link>
+
                 ))}
               </div>
             </li>
@@ -95,7 +105,8 @@ const Sidebar = ({ onClose }: { onClose?: () => void }) => {
 }
 
 const Layout = ({ children }: PropsWithChildren) => {
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false)
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
 
   return (
     <div className="relative h-screen flex flex-col md:flex-row bg-white overflow-hidden">

@@ -55,7 +55,6 @@ const NavItem = ({
           )}>
           <div
             className='absolute inset-0 top-1/2 bg-white shadow'
-            aria-hidden='true'
           />
 
           <div className='relative bg-white'>
@@ -81,11 +80,7 @@ const NavItem = ({
                         className='mt-6 block font-medium text-gray-900'>
                         {item.name}
                       </Link>
-                      <p
-                        className='mt-1'
-                        aria-hidden='true'>
-                        Shop now
-                      </p>
+                      
                     </div>
                   ))}
                 </div>
