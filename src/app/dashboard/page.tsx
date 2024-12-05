@@ -10,19 +10,20 @@ import { PlusIcon } from 'lucide-react';
 const Page = async () => {
 
   const { userId } = await auth();
+  
 
 
   if (!userId) {
     redirect("/sign-in");
   }
 
-  const user = await prisma.user.findUnique({
+  const userClerk = await prisma.user.findUnique({
     where: {
       externalId: userId
     }
   });
 
-  if (!user) {
+  if (!userClerk) {
     redirect("/welcome");
   }
 

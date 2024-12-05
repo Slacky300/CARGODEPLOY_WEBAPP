@@ -6,9 +6,10 @@ import { useQuery } from "@tanstack/react-query"
 import { Folder, Github, Globe, Terminal, Trash2 } from "lucide-react"
 import Link from "next/link"
 import { format } from "date-fns"
-import { useState } from "react"
+import { use, useEffect, useState } from "react"
 import { LoadingSpinner } from "@/components/LoadingSpinner"
 import { DashboardEmptyState } from "./DashboardEmptyState"
+import { useUser } from "@clerk/nextjs"
 
 interface Project {
     id: string;
@@ -22,7 +23,9 @@ interface Project {
 }
 
 export const DashboardPageContent = () => {
-    const [deletingCategory, setDeletingCategory] = useState<string | null>(null)
+    const [deletingCategory, setDeletingCategory] = useState<string | null>(null);
+
+
 
     const { data: projects, isPending: isEventCategoriesLoading } = useQuery({
         queryKey: ["user-event-categories"],
@@ -51,9 +54,31 @@ export const DashboardPageContent = () => {
         return <DashboardEmptyState />
     }
 
+    const displayOauthToken = async () => {
+
+        const res = await fetch("/api/external/oauth-token/github", {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+
+        const data = await res.json();
+
+        const response = await fetch('https://api.github.com/user/repos', {
+            headers: {
+              Authorization: `Bearer ${data.token}`,
+            },
+          });
+          const repos = await response.json();
+          console.log(repos);
+    }
+
+
     return (
         <>
             <ul className="grid max-w-6xl grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                <Button onClick={() => displayOauthToken()}>Github</Button>
                 {projects.map((project: Project) => (
                     <li
                         key={project.id}
