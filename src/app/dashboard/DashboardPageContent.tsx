@@ -6,10 +6,10 @@ import { useQuery } from "@tanstack/react-query"
 import { Folder, Github, Globe, Terminal, Trash2 } from "lucide-react"
 import Link from "next/link"
 import { format } from "date-fns"
-import { use, useEffect, useState } from "react"
+import { useState } from "react"
 import { LoadingSpinner } from "@/components/LoadingSpinner"
 import { DashboardEmptyState } from "./DashboardEmptyState"
-import { useUser } from "@clerk/nextjs"
+import { redirect } from "next/navigation"
 
 interface Project {
     id: string;
@@ -79,6 +79,9 @@ export const DashboardPageContent = () => {
         <>
             <ul className="grid max-w-6xl grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
                 <Button onClick={() => displayOauthToken()}>Github</Button>
+                <Button onClick={() => redirect(`https://github.com/login/oauth/authorize?client_id=${"Ov23liYcYSiqWQxMIOvd"}&scope=repo&redirect_uri=${encodeURIComponent(
+      "https://open-gar-51.clerk.accounts.dev/v1/oauth_callback"
+    )}&allow_signup=true`)}>GG</Button>
                 {projects.map((project: Project) => (
                     <li
                         key={project.id}

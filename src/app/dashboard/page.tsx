@@ -14,7 +14,7 @@ const Page = async () => {
 
 
   if (!userId) {
-    redirect("/sign-in");
+    redirect("/");
   }
 
   const userClerk = await prisma.user.findUnique({
