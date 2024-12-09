@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { fetchAllGithubRepos } from "@/lib/utils";
 import { useUser } from "@clerk/nextjs";
 import { useQuery } from "@tanstack/react-query";
+import Image from "next/image";
 import { useState } from "react";
 
 interface Repository {
@@ -23,12 +24,12 @@ interface RepoOwner {
     token?: string;
 }
 
-const ListRepositories = ({ avatar, username,token }: RepoOwner) => {
+const ListRepositories = ({ avatar, username, token }: RepoOwner) => {
     const [search, setSearch] = useState("");
     const [selectedRepo, setSelectedRepo] = useState<Repository | null>(null);
-    const {isLoaded, user} = useUser();
+    const { isLoaded, user } = useUser();
 
-   
+
     const { data: repositories = [], isLoading, isError } = useQuery<Repository[]>({
         queryKey: ["repositories"],
         queryFn: async () => {
@@ -48,13 +49,13 @@ const ListRepositories = ({ avatar, username,token }: RepoOwner) => {
         );
     }
 
-    if(!isLoaded) {
+    if (!isLoaded) {
         return (
             <div className="flex items-center justify-center min-h-screen bg-gray-50">
                 <LoadingSpinner />
             </div>
         );
-    }   
+    }
 
     if (isError) {
         return (
@@ -72,12 +73,12 @@ const ListRepositories = ({ avatar, username,token }: RepoOwner) => {
     );
 
     return (
-        <div className="min-h-screen flex flex-col bg-gray-100"
-        style={{ maxHeight: "calc(100vh - 18em)" }}
+        <div className="min-h-screen flex flex-col bg-gray-100 px-20"
+            style={{ maxHeight: "calc(100vh - 18em)" }}
         >
             {/* Header */}
-            <header className="bg-black text-white p-4 shadow-md rounded-sm"
-            style={{ maxHeight: "calc(100vh - 18em)" }}
+            <header className="bg-gray-800 text-white p-4 shadow-md rounded-sm"
+                style={{ maxHeight: "calc(100vh - 18em)" }}
             >
                 <div className="max-w-4xl mx-auto flex items-center space-x-4">
                     {avatar && (
@@ -98,8 +99,8 @@ const ListRepositories = ({ avatar, username,token }: RepoOwner) => {
 
             {/* Main Content */}
             <main className="flex-grow max-w-4xl min-w-full mx-auto py-4 px-6 space-y-6"
-              style={{ maxHeight: "calc(100vh - 18em)" }} // Adjust height dynamically based on layout
-              >
+                style={{ maxHeight: "calc(100vh - 18em)" }} // Adjust height dynamically based on layout
+            >
                 {/* Search Input */}
                 <div className="relative">
                     <input
@@ -121,7 +122,7 @@ const ListRepositories = ({ avatar, username,token }: RepoOwner) => {
                             {filteredRepositories.map((repo) => (
                                 <li
                                     key={repo.id}
-                                    className={`py-4 flex items-start justify-between cursor-pointer ${selectedRepo?.id === repo.id ? "bg-black p-4 rounded-sm text-white" : ""}`}
+                                    className={`py-4 flex items-start justify-between cursor-pointer ${selectedRepo?.id === repo.id ? "bg-gray-800 p-4 rounded-sm text-white" : ""}`}
                                     onClick={() => setSelectedRepo(repo)}
                                 >
                                     <div>
@@ -150,7 +151,11 @@ const ListRepositories = ({ avatar, username,token }: RepoOwner) => {
                         </ul>
                     ) : (
                         <div className="text-center justify-center">
-                            <GithubAppInstallButton />
+                            <div className="flex flex-col justify-center items-center">
+                                <Image src="/images/norepos.svg" alt="No Repositories" width={192} height={192} />
+                                <p className="text-gray-500 text-lg my-3">No repositories found</p>
+                                <GithubAppInstallButton />
+                            </div>
                         </div>
                     )}
                 </div>
@@ -159,7 +164,7 @@ const ListRepositories = ({ avatar, username,token }: RepoOwner) => {
             {/* Floating "Continue" Button */}
             <Button
                 onClick={() => console.log("Continue clicked")}
-                className="mx-10"
+                className="mx-10 bg-gray-800"
                 disabled={!selectedRepo}
             >
                 Continue

@@ -1,18 +1,18 @@
 import { CreateProjectModal } from "@/components/CreateProjectModal"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import Image from "next/image"
 
 export const DashboardEmptyState = () => {
- 
+
 
   return (
     <Card className="flex flex-col items-center justify-center rounded-2xl flex-1 text-center p-6">
       <div className="flex justify-center w-full">
-        <img
-          src="/brand-asset-wave.png"
-          alt="No categories"
-          className="size-48 -mt-24"
-        />
+        <a href="https://storyset.com/people">
+         <Image src="/images/noprojects.svg" alt="No Projects" width={192} height={192} className="-mt-24"/>
+         </a>
+
       </div>
 
       <h1 className="mt-2 text-xl/8 font-medium tracking-tight text-gray-900">
@@ -27,7 +27,7 @@ export const DashboardEmptyState = () => {
         <Button
           variant="outline"
           className="flex items-center space-x-2 w-full sm:w-auto"
-          onClick={() => {}}
+          onClick={() => { }}
           disabled={false}
         >
           <span className="size-5">🚀</span>
@@ -35,7 +35,7 @@ export const DashboardEmptyState = () => {
         </Button>
 
         <CreateProjectModal containerClassName="w-full sm:w-auto">
-          <Button className="flex items-center space-x-2 w-full sm:w-auto">
+          <Button className="flex bg-gray-800 items-center space-x-2 w-full sm:w-auto">
             <span>Add Project</span>
           </Button>
         </CreateProjectModal>

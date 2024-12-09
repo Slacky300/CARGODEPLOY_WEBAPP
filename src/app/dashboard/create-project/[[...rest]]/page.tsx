@@ -49,7 +49,6 @@ const CreateProject = async () => {
     
             console.log("Fetched new token:", token);
     
-            // Update metadata with the new token and expiry time
             
         } else {
             console.log("Token is valid. Using existing token...");

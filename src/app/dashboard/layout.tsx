@@ -46,7 +46,6 @@ const SIDEBAR_ITEMS: SidebarCategory[] = [
 const Sidebar = ({ onClose }: { onClose?: () => void }) => {
 
   const pathname = usePathname();
-  console.log(pathname);
 
 
   return (

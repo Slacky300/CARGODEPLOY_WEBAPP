@@ -9,7 +9,7 @@ const GithubAppInstallButton = () => {
     };
 
     return (
-        <Button className="w-full sm:w-fit" onClick={handleClick}>
+        <Button className="w-full sm:w-fit bg-gray-800" onClick={handleClick}>
             <Github className="size-4 mr-2" />
             <span className="tracking-widest">Configure GitHub App</span>
         </Button>

@@ -12,7 +12,7 @@ const NewProjectButton = () => {
     };
 
     return (
-        <Button className="w-full sm:w-fit" onClick={handleClick}>
+        <Button className="w-full sm:w-fit bg-gray-800" onClick={handleClick}>
             <PlusIcon className="size-4 mr-2" />
             <span className="tracking-widest">New Project</span>
         </Button>
