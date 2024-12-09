@@ -43,6 +43,35 @@ export const fetchAccessToken = async (installation_id: string) => {
     const installationData = await installationResponse.json();
     const accessToken = installationData.token;
     const expiresAt = installationData.expires_at;
+    const {userId}  = await auth();
+    if (!userId) {
+        throw new Error('User not authenticated.');
+    }
+    const client = await clerkClient();
+    const user = await client.users.getUser(userId);
+
+    console.log("clerk expiresAt:", user.privateMetadata.githubAppInstAccTokenExpiresAt);
+
+
+    console.log("Expires At Github:", expiresAt);
+
+
+    
+
+
+
+    await client.users.updateUser(userId, {
+        privateMetadata: {
+            githubAppInstAccessToken: accessToken,
+            githubAppInstAccTokenExpiresAt: expiresAt,
+        },
+    });
+
+    
+
+    console.log("clerk expiresAt:", user.privateMetadata.githubAppInstAccTokenExpiresAt);
+
+
 
     return { accessToken, expiresAt };
 }

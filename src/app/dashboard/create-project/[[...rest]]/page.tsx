@@ -21,7 +21,7 @@ const CreateProject = async () => {
         return null;
     }
 
-    const doesPrivateMetadataExist = user?.privateMetadata?.githubAppInstAccessToken;
+    const doesPrivateMetadataExist = user?.privateMetadata?.githubAppInstAccessToken || user?.privateMetadata?.githubAppInstAccTokenExpiresAt;
 
     if(!user?.privateMetadata?.githubAppInstAccessToken) {
         return null;
@@ -30,16 +30,27 @@ const CreateProject = async () => {
     let token = null;
 
     if (doesPrivateMetadataExist) {
-        const tokenExpiryTimestamp = new Date(user?.privateMetadata?.githubAppInstAccessTokenExpiresAt as string).getTime(); // Convert to Unix timestamp
-        const currentTime = Date.now(); // Current time in milliseconds
+        const tokenExpiryTime = user?.privateMetadata?.githubAppInstAccTokenExpiresAt;
+        console.log("Token Expiry Time:", tokenExpiryTime);
     
-        const isTokenExpired = typeof tokenExpiryTimestamp === 'number' && tokenExpiryTimestamp < currentTime;
-        console.log("Token Expiry Timestamp:", tokenExpiryTimestamp, "Current Time:", currentTime);
+        const tokenExpiryTimestamp = new Date(tokenExpiryTime as string).getTime();
+        const currentTimestamp = Date.now();
+        const GRACE_PERIOD_MS = 60 * 1000; 
+    
+        const isTokenExpired = tokenExpiryTimestamp <= (currentTimestamp + GRACE_PERIOD_MS);
+    
+        console.log("Token Expiry Timestamp:", tokenExpiryTimestamp, "Current Timestamp:", currentTimestamp);
+        console.log("Difference (ms):", tokenExpiryTimestamp - currentTimestamp);
     
         if (isTokenExpired) {
             console.log("Token is expired. Fetching a new token...");
-            token = await fetchAccessToken(dbUser.github_installation_id?.toString());
+            const res = await fetchAccessToken(dbUser.github_installation_id?.toString());
+            token = res.accessToken;
+    
             console.log("Fetched new token:", token);
+    
+            // Update metadata with the new token and expiry time
+            
         } else {
             console.log("Token is valid. Using existing token...");
             token = user?.privateMetadata?.githubAppInstAccessToken;

@@ -71,3 +71,26 @@ export const fetchAllGithubRepos = async (token?: string): Promise<any[]> => {
     return [];
   }
 };
+
+
+export const fetchBranches = async (owner: string, repo: string, token: string): Promise<any[]> => {
+  try {
+    const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/branches`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/vnd.github.v3+json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch branches.');
+    }
+
+    const branches = await response.json();
+    console.log('Branches:', branches);
+    return branches;
+  } catch (error) {
+    console.error('Error fetching branches:', error);
+    return [];
+  }
+};
