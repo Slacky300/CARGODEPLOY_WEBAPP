@@ -11,6 +11,7 @@ interface DashboardPageProps {
   children?: ReactNode
   hideBackButton?: boolean
   cta?: ReactNode
+  route?: string
 }
 
 const DashboardPage = ({
@@ -18,6 +19,7 @@ const DashboardPage = ({
   children,
   cta,
   hideBackButton,
+  route
 }: DashboardPageProps) => {
   const router = useRouter()
 
@@ -28,7 +30,7 @@ const DashboardPage = ({
           <div className="flex  gap-8">
             {hideBackButton ? null : (
               <Button
-                onClick={() => router.push("/")}
+                onClick={() => router.push(route || "/")}
                 className="w-fit bg-white"
                 variant="outline"
               >

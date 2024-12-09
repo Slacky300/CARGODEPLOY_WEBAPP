@@ -3,16 +3,12 @@ import prisma from '@/lib/db';
 import { auth } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
 import { DashboardPageContent } from './DashboardPageContent';
-import { CreateProjectModal } from '@/components/CreateProjectModal';
-import { Button } from '@/components/ui/button';
-import { PlusIcon } from 'lucide-react';
+import NewProjectButton from '@/components/NewProjectButton';
 
 const Page = async () => {
 
   const { userId } = await auth();
   
-
-
   if (!userId) {
     redirect("/");
   }
@@ -33,15 +29,10 @@ const Page = async () => {
   return (
     <DashboardPage 
     cta={
-      <CreateProjectModal>
-        <Button className="w-full sm:w-fit">
-          <PlusIcon className="size-4 mr-2" />
-          Add Category
-        </Button>
-      </CreateProjectModal>
+        <NewProjectButton />
     }
     
-    title='Your Deployments'>
+    title='Your Projects'>
      <DashboardPageContent />
     </DashboardPage>
   )

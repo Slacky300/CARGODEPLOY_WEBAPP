@@ -1,7 +1,6 @@
 import { CreateProjectModal } from "@/components/CreateProjectModal"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
 
 export const DashboardEmptyState = () => {
  
@@ -17,11 +16,11 @@ export const DashboardEmptyState = () => {
       </div>
 
       <h1 className="mt-2 text-xl/8 font-medium tracking-tight text-gray-900">
-        No Event Categories Yet
+        No Projects Yet
       </h1>
 
       <p className="text-sm/6 text-gray-600 max-w-prose mt-2 mb-8">
-        Start tracking events by creating your first category.
+        Start deploying your repos by creating your first Project.
       </p>
 
       <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4">
@@ -37,7 +36,7 @@ export const DashboardEmptyState = () => {
 
         <CreateProjectModal containerClassName="w-full sm:w-auto">
           <Button className="flex items-center space-x-2 w-full sm:w-auto">
-            <span>Add Category</span>
+            <span>Add Project</span>
           </Button>
         </CreateProjectModal>
       </div>

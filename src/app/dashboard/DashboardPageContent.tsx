@@ -9,7 +9,6 @@ import { format } from "date-fns"
 import { useState } from "react"
 import { LoadingSpinner } from "@/components/LoadingSpinner"
 import { DashboardEmptyState } from "./DashboardEmptyState"
-import { redirect } from "next/navigation"
 
 interface Project {
     id: string;
@@ -24,6 +23,7 @@ interface Project {
 
 export const DashboardPageContent = () => {
     const [deletingCategory, setDeletingCategory] = useState<string | null>(null);
+    
 
 
 
@@ -54,34 +54,11 @@ export const DashboardPageContent = () => {
         return <DashboardEmptyState />
     }
 
-    const displayOauthToken = async () => {
-
-        const res = await fetch("/api/external/oauth-token/github", {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-            },
-        });
-
-        const data = await res.json();
-
-        const response = await fetch('https://api.github.com/user/repos', {
-            headers: {
-              Authorization: `Bearer ${data.token}`,
-            },
-          });
-          const repos = await response.json();
-          console.log(repos);
-    }
-
-
+    
     return (
         <>
             <ul className="grid max-w-6xl grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-                <Button onClick={() => displayOauthToken()}>Github</Button>
-                <Button onClick={() => redirect(`https://github.com/login/oauth/authorize?client_id=${"Ov23liYcYSiqWQxMIOvd"}&scope=repo&redirect_uri=${encodeURIComponent(
-      "https://open-gar-51.clerk.accounts.dev/v1/oauth_callback"
-    )}&allow_signup=true`)}>GG</Button>
+                
                 {projects.map((project: Project) => (
                     <li
                         key={project.id}

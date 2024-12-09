@@ -37,6 +37,7 @@ model User {
     name     String?
     avatar   String?
     apiKey String @unique @default(cuid())
+    github_installation_id Int?
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
