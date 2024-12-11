@@ -4,19 +4,11 @@ import GithubAppInstallButton from "@/components/GithubAppInstallButton";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { Button } from "@/components/ui/button";
 import { fetchAllGithubRepos } from "@/lib/utils";
-import { useUser } from "@clerk/nextjs";
 import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import { useState } from "react";
-
-interface Repository {
-    id: string;
-    name: string;
-    url: string;
-    description: string;
-    git_url: string;
-    private: boolean;
-}
+import CreateProjectForm from "./CreateProjectForm";
+import { Repository } from "@/config";
 
 interface RepoOwner {
     avatar?: string;
@@ -27,14 +19,13 @@ interface RepoOwner {
 const ListRepositories = ({ avatar, username, token }: RepoOwner) => {
     const [search, setSearch] = useState("");
     const [selectedRepo, setSelectedRepo] = useState<Repository | null>(null);
-    const { isLoaded, user } = useUser();
+    const [nextSection, setNextSection] = useState(false);
 
 
     const { data: repositories = [], isLoading, isError } = useQuery<Repository[]>({
         queryKey: ["repositories"],
         queryFn: async () => {
             const repositories = await fetchAllGithubRepos(token);
-            console.log("rRR", repositories);
             return repositories;
         },
     });
@@ -49,13 +40,7 @@ const ListRepositories = ({ avatar, username, token }: RepoOwner) => {
         );
     }
 
-    if (!isLoaded) {
-        return (
-            <div className="flex items-center justify-center min-h-screen bg-gray-50">
-                <LoadingSpinner />
-            </div>
-        );
-    }
+  
 
     if (isError) {
         return (
@@ -67,7 +52,10 @@ const ListRepositories = ({ avatar, username, token }: RepoOwner) => {
         );
     }
 
-    // Filtering repositories based on search input
+    if(nextSection) {
+        return <CreateProjectForm token={token} repo={selectedRepo} setSelectedRepo={setSelectedRepo} setNextSection={setNextSection} />;
+    }
+
     const filteredRepositories = repositories && repositories?.filter((repo) =>
         repo.name.toLowerCase().includes(search.toLowerCase())
     );
@@ -76,7 +64,6 @@ const ListRepositories = ({ avatar, username, token }: RepoOwner) => {
         <div className="min-h-screen flex flex-col bg-gray-100 px-20"
             style={{ maxHeight: "calc(100vh - 18em)" }}
         >
-            {/* Header */}
             <header className="bg-gray-800 text-white p-4 shadow-md rounded-sm"
                 style={{ maxHeight: "calc(100vh - 18em)" }}
             >
@@ -97,11 +84,9 @@ const ListRepositories = ({ avatar, username, token }: RepoOwner) => {
                 </div>
             </header>
 
-            {/* Main Content */}
             <main className="flex-grow max-w-4xl min-w-full mx-auto py-4 px-6 space-y-6"
-                style={{ maxHeight: "calc(100vh - 18em)" }} // Adjust height dynamically based on layout
+                style={{ maxHeight: "calc(100vh - 18em)" }} 
             >
-                {/* Search Input */}
                 <div className="relative">
                     <input
                         type="text"
@@ -112,10 +97,9 @@ const ListRepositories = ({ avatar, username, token }: RepoOwner) => {
                     />
                 </div>
 
-                {/* Repository List */}
                 <div
                     className="bg-white rounded-lg shadow-md p-6 overflow-y-auto"
-                    style={{ maxHeight: "calc(100vh - 25em)" }} // Adjust height dynamically based on layout
+                    style={{ maxHeight: "calc(100vh - 25em)" }} 
                 >
                     {filteredRepositories.length > 0 ? (
                         <ul className="divide-y divide-gray-200">
@@ -136,7 +120,7 @@ const ListRepositories = ({ avatar, username, token }: RepoOwner) => {
                                         </p>
                                     </div>
                                     <div>
-                                        {repo.private ? (
+                                        {repo.visibility === "private" ? (
                                             <span className="bg-red-100 text-red-600 text-xs font-semibold px-2 py-1 rounded-full">
                                                 Private
                                             </span>
@@ -161,9 +145,8 @@ const ListRepositories = ({ avatar, username, token }: RepoOwner) => {
                 </div>
             </main>
 
-            {/* Floating "Continue" Button */}
             <Button
-                onClick={() => console.log("Continue clicked")}
+                onClick={() => setNextSection(true)}
                 className="mx-10 bg-gray-800"
                 disabled={!selectedRepo}
             >

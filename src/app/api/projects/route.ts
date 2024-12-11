@@ -71,9 +71,9 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
         error: "Please provide body required fields"
     });
 
-    const { name, gitHubRepoURL, slugIdentifier, rootDir, envVars } = body;
+    const { name, gitHubRepoURL, slugIdentifier, rootDir, envVars, branch,token } = body;
 
-    if(!name || !gitHubRepoURL || !slugIdentifier || !rootDir){
+    if(!name || !gitHubRepoURL || !slugIdentifier || !rootDir || !branch) {
         return NextResponse.json({
             status: 400,
             success: false,
@@ -106,7 +106,9 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
             gitHubRepoURL,
             slugIdentifier,
             rootDir,
-            user: { connect: { id: user.id } }
+            user: { connect: { id: user.id } },
+            branch,
+            token
         }
     });
 

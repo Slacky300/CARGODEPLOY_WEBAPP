@@ -96,3 +96,26 @@ export const PRODUCT_CATEGORIES = [
         ]
     }
 ];
+
+
+export interface Repository {
+    id: string;
+    name: string;
+    url: string;
+    description: string;
+    clone_url: string;
+    visibility: string;
+    owner: {
+        login: string;
+        avatar_url: string;
+    }
+}
+
+export interface CreateProjectFormValues {
+    name: string;
+    branch: string;
+    rootDir: string;
+    slug: string;
+    token: string;
+    envVars: { key: string; value: string }[];
+}

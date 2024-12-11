@@ -28,7 +28,7 @@ export const DashboardPageContent = () => {
 
 
     const { data: projects, isPending: isEventCategoriesLoading } = useQuery({
-        queryKey: ["user-event-categories"],
+        queryKey: ["projects"],
         queryFn: async () => {
             const res = await fetch("/api/projects", {
                 method: "GET",

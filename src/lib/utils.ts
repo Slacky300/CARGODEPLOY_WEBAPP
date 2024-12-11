@@ -21,7 +21,6 @@ export const getOauthToken = async () => {
 export const fetchGithubRepos = async () => {
 
 
-
   const token = await getOauthToken();
   const response = await fetch('https://api.github.com/user/repos', {
     headers: {
@@ -31,7 +30,6 @@ export const fetchGithubRepos = async () => {
 
   const repositories = await response.json();
 
-  console.log("rRR", repositories);
   return repositories;
 }
 
@@ -58,13 +56,13 @@ export const fetchAllGithubRepos = async (token?: string): Promise<any[]> => {
   try {
     let privateRepos: any[] = [];
     if (token) {
-      privateRepos = await fetchPrivateGithubRepos(token); // Fetch private repos
+      privateRepos = await fetchPrivateGithubRepos(token);
     }
 
-    const publicRepos = await fetchGithubRepos(); // Fetch public repos
+    const publicRepos = await fetchGithubRepos();
 
-    // Merge and return unique repositories
     const allRepos = [...privateRepos, ...publicRepos];
+    console.log(allRepos)
     return allRepos;
   } catch (e) {
     console.error('Error fetching repositories:', e);

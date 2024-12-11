@@ -4,10 +4,11 @@ import { buttonVariants } from "@/components/ui/button"
 import { Modal } from "@/components/ui/modal"
 import { cn } from "@/lib/utils"
 import { UserButton } from "@clerk/nextjs"
-import { Gem, Home, Key, LucideIcon, Menu, Settings, X } from "lucide-react"
+import { Gem, Home, Key, LucideIcon, Menu, NotepadText, Settings, X } from "lucide-react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { NextRouter } from "next/router"
+import { it } from "node:test"
 import { PropsWithChildren, useState } from "react"
 
 interface SidebarItem {
@@ -24,7 +25,10 @@ interface SidebarCategory {
 const SIDEBAR_ITEMS: SidebarCategory[] = [
   {
     category: "Overview",
-    items: [{ href: "/dashboard", icon: Home, text: "Dashboard" }],
+    items: [
+      { href: "/dashboard", icon: Home, text: "Dashboard" },
+      { href: "/dashboard/create-project", icon: NotepadText, text: "Create Project" }
+    ],
   },
   {
     category: "Account",
@@ -64,23 +68,32 @@ const Sidebar = ({ onClose }: { onClose?: () => void }) => {
                 {category}
               </p>
               <div className="-mx-2 flex flex-1 flex-col">
-                {items.map((item, i) => (
-                  <Link
-                    key={i}
-                    href={item.href}
-                    className={cn(
-                      buttonVariants({ variant: "ghost" }),
-                      pathname === item.href 
-                        ? "bg-zinc-200 w-full justify-start group flex items-center gap-x-2.5 rounded-md px-2 py-1.5 text-sm font-medium leading-6 text-zinc-700 hover:bg-gray-50 transition"
-                        : "w-full justify-start group flex items-center gap-x-2.5 rounded-md px-2 py-1.5 text-sm font-medium leading-6 text-zinc-700 hover:bg-gray-50 transition"
-                    )}
-                    onClick={onClose}
-                  >
-                    <item.icon className="size-4 text-zinc-500 group-hover:text-zinc-700" />
-                    {item.text}
-                  </Link>
 
-                ))}
+                {items.map((item, i) => {
+
+                  if (item.href === "/dashboard/create-project" && pathname !== "/dashboard/create-project") {
+                    return null;
+                  }
+
+                  return (
+                    <Link
+                      key={i}
+                      href={item.href}
+                      className={cn(
+                        buttonVariants({ variant: "ghost" }),
+                        pathname === item.href
+                          ? "bg-zinc-200 w-full justify-start group flex items-center gap-x-2.5 rounded-md px-2 py-1.5 text-sm font-medium leading-6 text-zinc-700 hover:bg-gray-50 transition"
+                          : "w-full justify-start group flex items-center gap-x-2.5 rounded-md px-2 py-1.5 text-sm font-medium leading-6 text-zinc-700 hover:bg-gray-50 transition"
+                      )}
+                      onClick={onClose}
+                    >
+                      <item.icon className="size-4 text-zinc-500 group-hover:text-zinc-700" />
+                       {item.text}
+                    </Link>
+                  );
+                })}
+
+
               </div>
             </li>
           ))}
@@ -103,7 +116,7 @@ const Sidebar = ({ onClose }: { onClose?: () => void }) => {
   )
 }
 
-const Layout = ({ children }: PropsWithChildren) => {
+const DashboardLayout = ({ children }: PropsWithChildren) => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
 
@@ -161,4 +174,4 @@ const Layout = ({ children }: PropsWithChildren) => {
   )
 }
 
-export default Layout
+export default DashboardLayout;
