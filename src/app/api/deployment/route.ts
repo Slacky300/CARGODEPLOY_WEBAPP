@@ -49,9 +49,7 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
 export const GET = async (req: NextRequest) => {
     const { searchParams } = new URL(req.url);
     const slug = searchParams.get('slug');
-    
-    console.log("Checking availability for slug:", slug);
-    // If slug is missing, return a bad request response
+
     if (!slug) {
         return NextResponse.json(
             { message: "Slug is required" , status: 400 },
@@ -62,23 +60,32 @@ export const GET = async (req: NextRequest) => {
     console.log("Checking availability for slug:", slug);
 
     try {
-        // Query the database to check if the slug already exists
-        const doesSlugExist = await prisma.project.findUnique({
-            where: {
-                slugIdentifier: slug,
-            },
-        });
 
+        const isProjectTableEmpty = await prisma.project.findMany();
 
-        // If slug is not found in the database, it's available
-        if (!doesSlugExist) {
+        if (isProjectTableEmpty.length === 0) {
             return NextResponse.json(
                 { available: true, message: `${slug} is available` , status: 200 },
                
             );
         }
 
-        // If slug is found in the database, it's not available
+        const doesSlugExist = await prisma.project.findUnique({
+            where: {
+                slugIdentifier: slug,
+            },
+        });
+
+        console.log("doesSlugExist", doesSlugExist);
+
+
+        if (doesSlugExist === null) {
+            return NextResponse.json(
+                { available: true, message: `${slug} is available` , status: 200 },
+               
+            );
+        }
+
         return NextResponse.json(
             { available: false, message: `${slug} is not available`, status: 400 },
            

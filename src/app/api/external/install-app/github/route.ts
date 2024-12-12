@@ -7,7 +7,11 @@ import prisma from '@/lib/db';
 
 
 
-export const fetchAccessToken = async (installation_id: string) => {
+export const fetchAccessToken = async (installation_id: string | undefined) => {
+
+    if(!installation_id) {
+        return { accessToken: "", expiresAt: "" };
+    }
 
     console.log('#######################fetchAccessToken#######################');
 

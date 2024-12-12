@@ -65,15 +65,17 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
 
     const body = await req.json();
 
-    if(!body) return NextResponse.json({
-        status: 400,
-        success: false,
-        error: "Please provide body required fields"
-    });
+    if (!body) {
+        return NextResponse.json({
+            status: 400,
+            success: false,
+            error: "Please provide body required fields"
+        });
+    }
 
-    const { name, gitHubRepoURL, slugIdentifier, rootDir, envVars, branch,token } = body;
+    const { name, gitHubRepoURL, slugIdentifier, rootDir, envVars, branch, token } = body;
 
-    if(!name || !gitHubRepoURL || !slugIdentifier || !rootDir || !branch) {
+    if (!name || !gitHubRepoURL || !slugIdentifier || !rootDir || !branch) {
         return NextResponse.json({
             status: 400,
             success: false,
@@ -81,52 +83,60 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
         });
     }
 
+    const newName = name + "-" + user.id;
+
     const doesProjectExist = await prisma.project.findFirst({
-        where: {
-            OR: [
-                { slugIdentifier },
-                { name },
-                { gitHubRepoURL }
-            ]
-        }
+        where: { slugIdentifier }
     });
-    
 
     if (doesProjectExist) {
         return NextResponse.json({
             status: 400,
             success: false,
-            error: `Project with slug/githubRepo/name already exists`
+            error: `Project with slugIdentifier already exists`
         });
     }
 
-    const project = await prisma.project.create({
-        data: {
-            name,
-            gitHubRepoURL,
-            slugIdentifier,
-            rootDir,
-            user: { connect: { id: user.id } },
-            branch,
-            token
-        }
-    });
+    let project;
+    try {
+        project = await prisma.project.create({
+            data: {
+                name: newName,
+                gitHubRepoURL,
+                slugIdentifier,
+                rootDir,
+                userId: user.id,
+                branch,
+                token
+            }
+        });
+    } catch (error) {
+        console.error("Error creating project:", error);
+        return NextResponse.json({
+            status: 500,
+            success: false,
+            error: "Failed to create project"
+        });
+    }
 
     let envIds = [];
 
     if (envVars && Array.isArray(envVars)) {
-        for(const x of envVars){
-            const envV = await prisma.environmentVariables.create({
-                data: {
-                    key: x.key,
-                    value: x.value,
-                    project: { connect: { id: project.id } }
-                }
-            });
-            envIds.push(envV.id);
+        for (const x of envVars) {
+            try {
+                const envV = await prisma.environmentVariables.create({
+                    data: {
+                        key: x.key,
+                        value: x.value,
+                        projectId: project.id // Use projectId instead of connecting via relation
+                    }
+                });
+                envIds.push(envV.id);
+            } catch (error) {
+                console.error("Error creating environment variable:", error);
+            }
         }
     }
-
     
     const updatedProject = await prisma.project.update({
         where: { id: project.id },

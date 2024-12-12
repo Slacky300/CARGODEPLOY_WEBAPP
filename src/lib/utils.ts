@@ -62,7 +62,6 @@ export const fetchAllGithubRepos = async (token?: string): Promise<any[]> => {
     const publicRepos = await fetchGithubRepos();
 
     const allRepos = [...privateRepos, ...publicRepos];
-    console.log(allRepos)
     return allRepos;
   } catch (e) {
     console.error('Error fetching repositories:', e);
@@ -85,7 +84,6 @@ export const fetchBranches = async (owner: string, repo: string, token: string):
     }
 
     const branches = await response.json();
-    console.log('Branches:', branches);
     return branches;
   } catch (error) {
     console.error('Error fetching branches:', error);

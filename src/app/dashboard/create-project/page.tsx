@@ -17,7 +17,7 @@ const CreateProject = async () => {
         }
     });
 
-    if (!dbUser || !dbUser.github_installation_id) {
+    if (!dbUser) {
         return null;
     }
 
@@ -44,7 +44,7 @@ const CreateProject = async () => {
     
         if (isTokenExpired) {
             console.log("Token is expired. Fetching a new token...");
-            const res = await fetchAccessToken(dbUser.github_installation_id?.toString());
+            const res = await fetchAccessToken(dbUser?.github_installation_id?.toString());
             token = res.accessToken;
     
             console.log("Fetched new token:", token);
