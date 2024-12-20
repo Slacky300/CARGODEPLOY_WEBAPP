@@ -76,7 +76,6 @@ export const GET = async (req: NextRequest) => {
             },
         });
 
-        console.log("doesSlugExist", doesSlugExist);
 
 
         if (doesSlugExist === null) {

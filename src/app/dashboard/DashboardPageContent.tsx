@@ -2,7 +2,7 @@
 
 import { Button, buttonVariants } from "@/components/ui/button"
 import { Modal } from "@/components/ui/modal"
-import { useQuery } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { Folder, Github, Globe, Terminal, Trash2 } from "lucide-react"
 import Link from "next/link"
 import { format } from "date-fns"
@@ -23,6 +23,7 @@ interface Project {
 
 export const DashboardPageContent = () => {
     const [deletingCategory, setDeletingCategory] = useState<string | null>(null);
+    const [projectID, setProjectID] = useState<string | null>(null);
     
 
 
@@ -39,7 +40,43 @@ export const DashboardPageContent = () => {
             const { projects } = await res.json()
             return projects
         },
-    })
+    });
+
+    const queryClient = useQueryClient();
+    
+    const deleteProject = useMutation({
+        mutationFn: async (projectId: string) => {
+            const res = await fetch(`/api/projects/${projectId}`, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+
+            if (!res.ok) {
+                throw new Error("Failed to delete project");
+            }
+
+            const { success } = await res.json();
+            return success;
+        },
+        onSuccess: () => {
+            // Invalidate cache or refetch project-related queries
+            queryClient.invalidateQueries({ queryKey: ["projects"] });
+            alert("Project deleted successfully");
+        },
+        onError: () => {
+            alert("Failed to delete project");
+        },
+    });
+
+
+    const handleDeleteProject = (projectId: string) => {
+        // UseMutation for handling DELETE request
+       
+        // Trigger the mutation
+        deleteProject.mutate(projectId);
+    };
 
 
     if (isEventCategoriesLoading) {
@@ -130,7 +167,7 @@ export const DashboardPageContent = () => {
                                     size="sm"
                                     className="text-gray-500 hover:text-red-600 transition-colors"
                                     aria-label={`Delete ${project.name} project`}
-                                    onClick={() => { }}
+                                    onClick={() => { handleDeleteProject(project.id) }}
                                 >
                                     <Trash2 className="size-5" />
                                 </Button>
