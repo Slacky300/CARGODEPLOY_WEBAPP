@@ -23,9 +23,6 @@ const CreateProject = async () => {
 
     const doesPrivateMetadataExist = user?.privateMetadata?.githubAppInstAccessToken || user?.privateMetadata?.githubAppInstAccTokenExpiresAt;
 
-    if(!user?.privateMetadata?.githubAppInstAccessToken) {
-        return null;
-    }
 
     let token = null;
 
