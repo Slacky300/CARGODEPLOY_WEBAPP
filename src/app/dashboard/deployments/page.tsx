@@ -1,10 +1,10 @@
+import DashboardPage from '@/components/DashboardPage';
 import React from 'react'
 
 const Deployments = () => {
   return (
-    <div>
-      
-    </div>
+    <DashboardPage title="Deployments">
+    </DashboardPage>
   )
 }
 

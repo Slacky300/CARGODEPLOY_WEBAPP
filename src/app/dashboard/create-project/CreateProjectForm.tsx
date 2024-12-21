@@ -8,6 +8,7 @@ import { useRepositoryDetails } from "@/hooks/use-repository-details";
 import SlugInput from "@/components/SlugInput";
 import { CreateProjectFormValues } from "@/config/index";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 
 interface RepoToDisplay {
   repo: Repository | null;
@@ -27,6 +28,7 @@ const CreateProjectForm = ({
   }
 
   const [slug, setSlug] = useState("");
+  const router = useRouter();
   const {
     register,
     handleSubmit,
@@ -74,7 +76,8 @@ const CreateProjectForm = ({
     if (!response.ok) {
       throw new Error("Failed to create project");
     }
-    return response.json();
+    const dataM = await response.json();
+    return dataM;
   };
 
   const queryClient = useQueryClient();
@@ -84,10 +87,11 @@ const CreateProjectForm = ({
     CreateProjectFormValues // Variables type
   >({
     mutationFn: createProject,
-    onSuccess: () => {
-      alert("Project created successfully!");
+    onSuccess: (data) => {
+      console.log("Project created successfully:", data);
       queryClient.invalidateQueries({ queryKey: ["projects"] });
-      setNextSection(true); // Proceed to the next section if needed
+      router.push(`/dashboard/deployments/${data?.data?.newDeployment?.id}`)
+      
 
     },
     onError: (error: any) => {

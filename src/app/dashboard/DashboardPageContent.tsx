@@ -153,7 +153,7 @@ export const DashboardPageContent = () => {
 
                             <div className="flex items-center justify-between mt-4">
                                 <Link
-                                    href={`/dashboard/project/${project.id}`}
+                                    href={`/dashboard/deployments/${project.id}`}
                                     className={buttonVariants({
                                         variant: "outline",
                                         size: "sm",

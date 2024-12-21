@@ -29,7 +29,7 @@ const SlugInput = ({ slug, setSlug, register }: SlugInputProps) => {
     const { data: available, isLoading, isError } = useQuery({
         queryKey: ["checkSlugAvailability", debouncedSlug],
         queryFn: async () => {
-            const res = await fetch(`/api/deployment?slug=${debouncedSlug}`, {
+            const res = await fetch(`/api/deployment/slug?slug=${debouncedSlug}`, { //Need to improve the URL path
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",

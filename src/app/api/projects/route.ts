@@ -147,9 +147,16 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
         }
     });
 
+    const newDeployment = await prisma.deployment.create({
+        data: {
+            projectId: project.id,
+            status: "PENDING"
+        }
+    });
+
     return NextResponse.json({
         status: 201,
         success: true,
-        data: updatedProject
+        data: {updatedProject, newDeployment}
     });
 };

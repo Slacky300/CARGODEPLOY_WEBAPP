@@ -81,7 +81,7 @@ const Sidebar = ({ onClose }: { onClose?: () => void }) => {
                       href={item.href}
                       className={cn(
                         buttonVariants({ variant: "ghost" }),
-                        pathname === item.href
+                        pathname === item.href || pathname.startsWith(item.href)
                           ? "bg-zinc-200 w-full justify-start group flex items-center gap-x-2.5 rounded-md px-2 py-1.5 text-sm font-medium leading-6 text-zinc-700 hover:bg-gray-50 transition"
                           : "w-full justify-start group flex items-center gap-x-2.5 rounded-md px-2 py-1.5 text-sm font-medium leading-6 text-zinc-700 hover:bg-gray-50 transition"
                       )}
