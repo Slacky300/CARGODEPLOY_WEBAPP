@@ -23,7 +23,7 @@ const CreateProjectForm = ({
   setSelectedRepo,
   token,
 }: RepoToDisplay) => {
-  if (!repo || !token) {
+  if (!repo) {
     return null;
   }
 
@@ -53,7 +53,7 @@ const CreateProjectForm = ({
   const { branches, branchesError, branchesLoading } = useRepositoryDetails(
     repo?.owner.login,
     repo?.name,
-    token
+    token ?? token
   );
 
   const createProject = async (data: CreateProjectFormValues): Promise<any> => {
@@ -90,7 +90,7 @@ const CreateProjectForm = ({
     onSuccess: (data) => {
       console.log("Project created successfully:", data);
       queryClient.invalidateQueries({ queryKey: ["projects"] });
-      router.push(`/dashboard/deployments/${data?.data?.newDeployment?.id}`)
+      router.push(`/dashboard/deployments/${data?.data?.updatedProject.id}`)
       
 
     },
