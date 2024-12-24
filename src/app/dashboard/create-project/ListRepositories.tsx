@@ -103,6 +103,7 @@ const ListRepositories = ({ avatar, username, token }: RepoOwner) => {
                 >
                     {filteredRepositories.length > 0 ? (
                         <ul className="divide-y divide-gray-200">
+                            {/* Add + icon for private repos */}
                             {filteredRepositories.map((repo) => (
                                 <li
                                     key={repo.id}
@@ -134,6 +135,7 @@ const ListRepositories = ({ avatar, username, token }: RepoOwner) => {
                             ))}
                         </ul>
                     ) : (
+                        //Improve No repositories found UI
                         <div className="text-center justify-center">
                             <div className="flex flex-col justify-center items-center">
                                 <Image src="/images/norepos.svg" alt="No Repositories" width={192} height={192} />
@@ -145,6 +147,7 @@ const ListRepositories = ({ avatar, username, token }: RepoOwner) => {
                 </div>
             </main>
 
+                
             <Button
                 onClick={() => setNextSection(true)}
                 className="mx-10 bg-gray-800"

@@ -17,6 +17,8 @@ export const GET = async (req: NextRequest) => {
 
     try {
 
+        //Remove this block of code
+
         const isProjectTableEmpty = await prisma.project.findMany();
 
         if (isProjectTableEmpty.length === 0) {
@@ -25,6 +27,8 @@ export const GET = async (req: NextRequest) => {
                
             );
         }
+
+        //Remove this block of code
 
         const doesSlugExist = await prisma.project.findUnique({
             where: {

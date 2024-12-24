@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import DashboardPage from '@/components/DashboardPage';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 // Import any icons you want from lucide-react
@@ -23,6 +23,7 @@ interface Deployments {
 const RespectiveDeployment = () => {
   const { deploymentId } = useParams();
   const [deployments, setDeployments] = useState<Deployments | null>(null);
+  const router = useRouter();
 
   const {
     data,
@@ -91,7 +92,7 @@ const RespectiveDeployment = () => {
               className="border border-gray-300 rounded-md hover:shadow-lg transition-shadow p-4 bg-white"
             >
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4">
-                <h2 className="flex cursor-pointer items-center gap-2 font-semibold text-lg text-black">
+                <h2 onClick={() => router.push(`/dashboard/deployments/view/${deployment.deploymentId}`)} className="flex cursor-pointer items-center gap-2 font-semibold text-lg text-black">
                   <FileCode2 size={20} />
                   {deployment.gitHubRepoName} <span className='text-sm text-white bg-gray-700 px-2 py-1 rounded-full font-medium'>Commit #8975</span>
                 </h2>

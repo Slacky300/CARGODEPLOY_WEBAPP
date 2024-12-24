@@ -1,4 +1,3 @@
-import { CreateProjectModal } from "@/components/CreateProjectModal"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import Image from "next/image"
@@ -34,11 +33,11 @@ export const DashboardEmptyState = () => {
           <span>{"Quickstart"}</span>
         </Button>
 
-        <CreateProjectModal containerClassName="w-full sm:w-auto">
+        {/* <CreateProjectModal containerClassName="w-full sm:w-auto"> */}
           <Button className="flex bg-gray-800 items-center space-x-2 w-full sm:w-auto">
             <span>Add Project</span>
           </Button>
-        </CreateProjectModal>
+        {/* </CreateProjectModal> */}
       </div>
     </Card>
   )

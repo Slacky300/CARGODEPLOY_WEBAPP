@@ -19,11 +19,11 @@ export const fetchAccessToken = async (installation_id: string | undefined) => {
     const privateKeyPath = path.resolve(process.cwd(), 'src/lib/cargodeploy_app_prkey.pem');
 
     if (!fs.existsSync(privateKeyPath)) {
-        throw new Error('Private key file not found.');
+        throw new Error('Private key file not found.'); //Need improvement
     }
     const privateKey = fs.readFileSync(privateKeyPath, 'utf-8');
 
-    const token = jwt.sign(
+    const token = jwt.sign(   //Need to study about iss
         { iss: APP_ID },
         privateKey,
         { algorithm: 'RS256', expiresIn: '10m' }
@@ -125,7 +125,7 @@ export const GET = async (req: NextRequest) => {
 
         const { accessToken, expiresAt } = await fetchAccessToken(installation_id);
 
-
+        //reduntant code
         await clerkClientVar.users.updateUser(userId, {
             privateMetadata: {
                 githubAppInstAccessToken: accessToken,

@@ -22,13 +22,13 @@ interface Project {
 }
 
 export const DashboardPageContent = () => {
-    const [deletingCategory, setDeletingCategory] = useState<string | null>(null);
+    const [deletingCategory, setDeletingCategory] = useState<string | null>(null); //update to a more sensible name
     const [projectID, setProjectID] = useState<string | null>(null);
     
 
 
 
-    const { data: projects, isPending: isEventCategoriesLoading } = useQuery({
+    const { data: projects, isPending: isEventCategoriesLoading } = useQuery({ //update to a more sensible name
         queryKey: ["projects"],
         queryFn: async () => {
             const res = await fetch("/api/projects", {

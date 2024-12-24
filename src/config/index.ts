@@ -108,7 +108,7 @@ export interface Repository {
     owner: {
         login: string;
         avatar_url: string;
-    }
+    },
 }
 
 export interface CreateProjectFormValues {

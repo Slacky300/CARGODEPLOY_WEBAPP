@@ -146,7 +146,7 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
             }
         }
     });
-
+    
     const newDeployment = await prisma.deployment.create({
         data: {
             projectId: project.id,

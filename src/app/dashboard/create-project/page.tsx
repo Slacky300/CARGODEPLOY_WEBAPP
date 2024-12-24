@@ -8,6 +8,7 @@ import { fetchAccessToken } from '@/app/api/external/install-app/github/route';
 const CreateProject = async () => {
 
     const user = await currentUser();
+    console.log("User:", user);
     if (!user) {
         return null;
     }
@@ -41,7 +42,7 @@ const CreateProject = async () => {
     
         if (isTokenExpired) {
             console.log("Token is expired. Fetching a new token...");
-            const res = await fetchAccessToken(dbUser?.github_installation_id?.toString());
+            const res = await fetchAccessToken(dbUser?.github_installation_id?.toString()); //Improve this installation_id fetching param
             token = res.accessToken;
     
             console.log("Fetched new token:", token);
