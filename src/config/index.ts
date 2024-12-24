@@ -119,3 +119,17 @@ export interface CreateProjectFormValues {
     token: string;
     envVars: { key: string; value: string }[];
 }
+
+export interface Deployment {
+    deploymentId: string;
+    createdAt: Date;
+    gitHubRepoURL: string;
+    gitHubRepoName: string;
+    deploymentStatus: string;
+    projectId: string;
+}
+
+export interface Deployments {
+    projectName: string;
+    deployments: Deployment[];
+}

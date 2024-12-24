@@ -50,14 +50,17 @@ const SIDEBAR_ITEMS: SidebarCategory[] = [
 const Sidebar = ({ onClose }: { onClose?: () => void }) => {
 
   const pathname = usePathname();
+  
 
 
   return (
     <div className="space-y-4 md:space-y-6 relative z-20 flex flex-col h-full">
       {/* logo */}
+      <Link href={"/"} >
       <p className="hidden sm:block text-lg/7 font-semibold text-brand-900">
         Cargo<span className="text-brand-700">Deploy</span>
       </p>
+      </Link>
 
       {/* navigation items */}
       <div className="flex-grow">
@@ -81,7 +84,7 @@ const Sidebar = ({ onClose }: { onClose?: () => void }) => {
                       href={item.href}
                       className={cn(
                         buttonVariants({ variant: "ghost" }),
-                        pathname === item.href
+                        pathname === item.href || pathname.startsWith(`${item.href}/deployments`)
                           ? "bg-zinc-200 w-full justify-start group flex items-center gap-x-2.5 rounded-md px-2 py-1.5 text-sm font-medium leading-6 text-zinc-700 hover:bg-gray-50 transition"
                           : "w-full justify-start group flex items-center gap-x-2.5 rounded-md px-2 py-1.5 text-sm font-medium leading-6 text-zinc-700 hover:bg-gray-50 transition"
                       )}
