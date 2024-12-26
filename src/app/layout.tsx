@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import Navbar from "@/components/Navbar";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Providers } from "@/components/providers/QueryProvider";
+import { SocketProvider } from "@/context/SocketContext";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -36,7 +37,9 @@ export default function RootLayout({
           <main className="relative flex flex-col min-h-screen">
             <div className="flex-grow flex-1">
               <Providers>
-                {children}
+                <SocketProvider>
+                  {children}
+                </SocketProvider>
               </Providers>
             </div>
           </main>

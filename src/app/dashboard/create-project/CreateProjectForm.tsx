@@ -90,7 +90,7 @@ const CreateProjectForm = ({
     onSuccess: (data) => {
       console.log("Project created successfully:", data);
       queryClient.invalidateQueries({ queryKey: ["projects"] });
-      router.push(`/dashboard/deployments/${data?.data?.updatedProject.id}`)
+      router.push(`/dashboard/deployments/view/${data?.data?.newDeployment.id}`)
       
 
     },

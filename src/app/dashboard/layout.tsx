@@ -6,9 +6,7 @@ import { cn } from "@/lib/utils"
 import { UserButton } from "@clerk/nextjs"
 import { Gem, Home, Key, LucideIcon, Menu, NotepadText, Settings, X } from "lucide-react"
 import Link from "next/link"
-import { usePathname, useRouter } from "next/navigation"
-import { NextRouter } from "next/router"
-import { it } from "node:test"
+import { usePathname } from "next/navigation"
 import { PropsWithChildren, useState } from "react"
 
 interface SidebarItem {

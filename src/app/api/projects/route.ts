@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 
 export const GET = async () => {
-    const {userId} =  await auth();
+    const { userId } = await auth();
     if (!userId) {
         return NextResponse.json({
             status: 401,
@@ -137,7 +137,7 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
             }
         }
     }
-    
+
     const updatedProject = await prisma.project.update({
         where: { id: project.id },
         data: {
@@ -146,7 +146,7 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
             }
         }
     });
-    
+
     const newDeployment = await prisma.deployment.create({
         data: {
             projectId: project.id,
@@ -154,9 +154,39 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
         }
     });
 
+    const updatedEnvVars = envVars.map(({ key, value }: { key: string, value: string }) => ({
+        name: key,
+        value: value
+    }));
+
+    const webhookHit = await fetch(`https://n8n.slacky.xyz/webhook/46c1a25f-1e1d-41e1-831c-acaab56b5449`, {
+        method: "POST",
+        body: JSON.stringify({
+
+            git_url: project.gitHubRepoURL,
+            project_id: project.slugIdentifier,
+            root_folder: project.rootDir,
+            env_variables: JSON.stringify(updatedEnvVars),
+            name: project.name,
+            access_token: token,
+            branch: project.branch,
+            deployment_id: newDeployment.id
+        }),
+    });
+
+    if (!webhookHit.ok) {
+        console.error("Failed to hit webhook:", webhookHit);
+        return NextResponse.json({
+            status: 500,
+            success: false,
+            error: "Failed to hit webhook"
+        });
+    }
+    const webhookResponse = await webhookHit.json();
+    console.log("Webhook response:", webhookResponse);
     return NextResponse.json({
         status: 201,
         success: true,
-        data: {updatedProject, newDeployment}
+        data: { updatedProject, newDeployment }
     });
 };

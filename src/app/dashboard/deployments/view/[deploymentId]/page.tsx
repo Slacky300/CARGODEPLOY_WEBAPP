@@ -1,25 +1,45 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import DashboardPage from "@/components/DashboardPage";
 import DeploymentRepo from "../DeploymentRepo";
 import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { Deployment } from "@/config";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { useSocketContext } from "@/context/SocketContext";
 
 const ViewDeployment = () => {
-
   const { deploymentId } = useParams();
- 
+  const [logs, setLogs] = useState<string[]>([]);
+  const { socket } = useSocketContext();
 
   const { data, isLoading, isError } = useQuery<Deployment>({
-    queryKey: ['deployment', deploymentId],
+    queryKey: ["deployment", deploymentId],
     queryFn: async () => {
+      if (!deploymentId) throw new Error("Invalid deploymentId");
       const response = await fetch(`/api/deployment?deploymentId=${deploymentId}`);
+      if (!response.ok) throw new Error("Failed to fetch deployment details");
       const data = await response.json();
-      return data.deployment || [];
-    }
-  })
+      return data.deployment;
+    },
+  });
+
+  useEffect(() => {
+    if (!socket || !deploymentId) return;
+
+    // Use a room or channel if needed
+    socket.emit("join", deploymentId);
+
+    socket.on("logUpdate", (payload: { deploymentId: string; logs: string }) => {
+      if (payload?.logs) {
+        setLogs((prevLogs) => [...prevLogs, payload.logs]);
+      }
+    });
+
+    return () => {
+      socket.off("logUpdate");
+    };
+  }, [socket, deploymentId]);
 
   if (isLoading) {
     return (
@@ -29,38 +49,21 @@ const ViewDeployment = () => {
     );
   }
 
-
-
   if (isError || !data) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50">
-        <p className="text-red-500 text-center">
-          Failed to load Deployment Details
-        </p>
+        <p className="text-red-500 text-center">Failed to load Deployment Details</p>
       </div>
     );
   }
 
-  // Example logs to display in the terminal-like UI
-  const logs = `
-[INFO] Starting deployment process for ${data.gitHubRepoName}...
-[INFO] Fetching build artifacts...
-[INFO] Build artifacts fetched successfully.
-[INFO] Environment: ${"PRODUCTION"}
-[INFO] Build completed successfully!
-[INFO] Deployment status: ${data.deploymentStatus}
-[INFO] Deployment completed at ${data.createdAt}
-[INFO] Deployment successful!
-`;
-
   return (
-    <DashboardPage title={`Logs for ${data.gitHubRepoName}`} route={`/dashboard/deployments/${data.projectId}`}>
-      {/* Container for page content */}
+    <DashboardPage
+      title={`Logs for ${data.gitHubRepoName}`}
+      route={`/dashboard/deployments/${data.projectId}`}
+    >
       <div className="flex flex-col w-full h-full p-4 gap-6">
-        {/* Info Section */}
         <DeploymentRepo deploymentInfo={data} />
-
-        {/* Terminal-Style Logs Section */}
         <div
           className="
             bg-black
@@ -75,7 +78,13 @@ const ViewDeployment = () => {
             whitespace-pre-wrap
           "
         >
-          {logs}
+          {logs.length > 0 ? (
+            logs.map((logLine, index) => <div key={index}>{logLine}</div>)
+          ) : (
+            <div className="text-gray-500">
+              No logs available yet. Waiting for updates...
+            </div>
+          )}
         </div>
       </div>
     </DashboardPage>
