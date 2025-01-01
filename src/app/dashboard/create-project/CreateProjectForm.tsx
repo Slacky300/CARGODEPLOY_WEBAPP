@@ -104,7 +104,7 @@ const CreateProjectForm = ({
   };
 
   return (
-    <div className="flex flex-col md:flex-row bg-gray-100 text-black p-8 rounded-lg max-w-6xl mx-auto shadow-md gap-6">
+    <div className="flex flex-col md:flex-row bg-gray-100 text-black p-8 rounded-lg max-w-6xl shadow-md gap-6">
       {/* Left Section - Repository Details */}
       <div className="bg-gray-50 p-6 rounded-md shadow-md w-full md:w-2/5 flex flex-col items-center text-center space-y-4">
         <img
@@ -121,14 +121,14 @@ const CreateProjectForm = ({
             Change
           </button>
         </div>
-        <div className="space-y-4 w-full">
+        <div className="center space-y-1 w-full">
           <div className="flex items-center space-x-3">
             <User className="text-gray-600 flex-shrink-0" size={20} />
             <p className="text-sm text-gray-700">
               <strong>Owner:</strong> {repo?.owner.login}
             </p>
           </div>
-          <div className="flex items-center space-x-3">
+          <div className=" flex items-center space-x-0">
             <Github className="text-gray-600 flex-shrink-0" size={20} />
             <Button
               variant="ghost"
@@ -195,24 +195,24 @@ const CreateProjectForm = ({
             {errors.rootDir && <p className="text-red-600">{errors.rootDir.message}</p>}
           </div>
 
-          <div>
+          <div className="w-full ">
             <label className="block text-sm font-medium mb-4">Environment Variables</label>
             {fields.map((field, index) => (
-              <div key={field.id} className="flex items-center space-x-4 mb-2">
+              <div key={field.id} className="flex items-center gap-2 mb-2">
                 <input
                   {...register(`envVars.${index}.key`)}
                   placeholder="Key"
-                  className="flex-1 px-4 py-2 rounded-md bg-gray-200 text-black border border-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500"
+                  className="flex-1 min-w-0 px-4 py-2 rounded-md bg-gray-200 text-black border border-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500"
                 />
                 <input
                   {...register(`envVars.${index}.value`)}
                   placeholder="Value"
-                  className="flex-1 px-4 py-2 rounded-md bg-gray-200 text-black border border-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500"
+                  className="flex-1 min-w-0 px-4 py-2 rounded-md bg-gray-200 text-black border border-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500"
                 />
                 <button
                   type="button"
                   onClick={() => remove(index)}
-                  className="px-3 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-700 transition"
+                  className="px-3 py-2  flex-col bg-gray-800 text-white rounded-md hover:bg-gray-700 transition"
                 >
                   <Trash size={18} />
                 </button>

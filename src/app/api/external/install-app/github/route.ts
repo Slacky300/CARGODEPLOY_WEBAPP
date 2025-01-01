@@ -28,7 +28,7 @@ export const fetchAccessToken = async (installation_id: string | undefined) => {
         privateKey,
         { algorithm: 'RS256', expiresIn: '10m' }
     );
-
+    console.log(token);
     const installationResponse = await fetch(
         `https://api.github.com/app/installations/${installation_id}/access_tokens`,
         {

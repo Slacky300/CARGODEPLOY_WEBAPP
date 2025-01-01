@@ -106,7 +106,7 @@ export const DashboardPageContent = () => {
                         <div className="pointer-events-none z-0 absolute inset-px rounded-lg shadow-sm transition-all duration-300 group-hover:shadow-md ring-1 ring-black/5" />
 
                         <div className="relative p-6 z-10">
-                            <div className="flex items-center gap-4 mb-6">
+                            <div className="flex flex-wrap items-center gap-4 mb-6 sm:flex-row">
                                 <div
                                     className="size-12 rounded-full"
                                     style={{
@@ -117,9 +117,9 @@ export const DashboardPageContent = () => {
                                     }}
                                 />
 
-                                <div className="flex w-96 min-w-40 justify-between" >
+                                <div className="flex flex-wrap w-96 min-w-40 justify-between" >
                                     <div>
-                                        <h3 className="text-lg/7 font-medium tracking-tight text-gray-950">
+                                        <h3 className="text-lg/7 font-medium tracking-tight text-gray-950 ">
                                             {project.name}
                                         </h3>
                                         <p className="text-sm/6 text-gray-600">

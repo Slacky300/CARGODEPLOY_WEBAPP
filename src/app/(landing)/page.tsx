@@ -47,11 +47,11 @@ export default function Home() {
       </MaxWidthWrapper>
       <section className="border-t border-gray-200 bg-gray-50">
         <MaxWidthWrapper classname="py-20">
-          <div className="grid grid-cols-1 gap-y-12 sm:grid-cols-12 sm:gap-x-6 lg:grid-cols-3 lg:gap-x-8 lg:gap-y-0">
+          <div className="grid grid-cols-1 gap-y-12 sm:grid-cols-1 md:grid-cols-3 lg:grid-cols-3 md:gap-x-6 sm:gap-x-6 lg:gap-x-8 lg:gap-y-0">
             {PERKS.map((perk, index) => (
-              <div key={index} className="text-center md:flex md:items-start md:text-left lg:block lg:text-center">
+              <div key={index} className="text-center lg:block lg:text-center">
                 <div className="md:flex-shrink-0 flex justify-center">
-                  <div className="h-16 w-16 flex items-center justify-center rounded-full bg-yellow-400 text-black">
+                  <div className="h-16 w-16 flex items-center justify-center rounded-full bg-yellow-400 text-black ml-1">
                     {perk.icon}
                   </div>
                 </div>
