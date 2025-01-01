@@ -12,6 +12,7 @@ const ViewDeployment = () => {
   const { deploymentId } = useParams();
   const [logs, setLogs] = useState<string[]>([]);
   const { socket } = useSocketContext();
+  const [status, setStatus] = useState<string>("PENDING");
 
   const { data, isLoading, isError } = useQuery<Deployment>({
     queryKey: ["deployment", deploymentId],
@@ -32,8 +33,13 @@ const ViewDeployment = () => {
 
     socket.on("logUpdate", (payload: { deploymentId: string; logs: string }) => {
       if (payload?.logs) {
+        if(payload.logs === "SUCCESS" || payload.logs === "FAILED" ) {
+          setStatus(payload.logs);
+          return;
+        }
         setLogs((prevLogs) => [...prevLogs, payload.logs]);
       }
+
     });
 
     return () => {
@@ -63,7 +69,7 @@ const ViewDeployment = () => {
       route={`/dashboard/deployments/${data.projectId}`}
     >
       <div className="flex flex-col w-full h-full p-4 gap-6">
-        <DeploymentRepo deploymentInfo={data} />
+        <DeploymentRepo deploymentInfo={data} status={status}/>
         <div
           className="
             bg-black

@@ -4,10 +4,11 @@ import { RefreshCcw, ExternalLink, GitBranch } from "lucide-react";
 import { Deployment } from '@/config';
 
 type DeploymentInfo = {
-    deploymentInfo: Deployment
+    deploymentInfo: Deployment,
+    status: string
 }
 
-const DeploymentRepo = ({deploymentInfo}: DeploymentInfo) => {
+const DeploymentRepo = ({deploymentInfo, status}: DeploymentInfo) => {
   return (
     <div className="border border-gray-300 rounded-md bg-white p-4 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
     {/* Repo and Info */}
@@ -25,12 +26,14 @@ const DeploymentRepo = ({deploymentInfo}: DeploymentInfo) => {
         Status:{" "}
         <span
           className={`font-semibold ${
-            deploymentInfo.deploymentStatus === "Success"
+            status === "SUCCESS"
               ? "text-green-600"
-              : "text-red-600"
+              : status === "FAILED"
+              ? "text-red-600"
+              : "text-yellow-600"
           }`}
         >
-          {deploymentInfo.deploymentStatus}
+          {deploymentInfo.deploymentStatus === "PENDING"? status : deploymentInfo.deploymentStatus}
         </span>
       </p>
     </div>

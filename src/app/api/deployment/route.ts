@@ -1,5 +1,6 @@
 import prisma from "@/lib/db";
 import { auth } from "@clerk/nextjs/server"
+import { DeploymentStatus } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
 export const POST = async (req: NextRequest, res: NextResponse) => {
@@ -122,5 +123,55 @@ export const GET = async (req: NextRequest) => {
         status: 200,
         deployment: responseBody
     });
+
+}
+
+export const PATCH = async (req: NextRequest) => {
+    const { searchParams } = new URL(req.url);
+    const deploymentIdWithStatus = searchParams.get('deploymentIdWithStatus');
+
+    if (!deploymentIdWithStatus) {
+        return NextResponse.json({
+            status: 400,
+            error: "DeploymentID and status are required"
+        });
+    }
+    const deploymentId = deploymentIdWithStatus.split('-')[0];
+    const statusD = deploymentIdWithStatus.split('-')[1] as DeploymentStatus;
+
+    if (!deploymentId || !statusD) {
+        return NextResponse.json({
+            status: 400,
+            error: "DeploymentID and status are required"
+        });
+    }
+
+    const deployment = await prisma.deployment.findUnique({
+        where: {
+            id: deploymentId
+        }
+    });
+
+    if (!deployment) {
+        return NextResponse.json({
+            status: 404,
+            error: "Deployment not found"
+        });
+    }
+
+    const patchDeployment = await prisma.deployment.update({
+        where: {
+            id: deploymentId
+        },
+        data: {
+            status: statusD
+        }
+    });
+
+    return NextResponse.json({
+        status: 200,
+        deployment: patchDeployment
+    });
+
 
 }
