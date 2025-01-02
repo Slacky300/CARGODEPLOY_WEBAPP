@@ -73,7 +73,7 @@ const RespectiveDeployment = () => {
         {/* Header Section */}
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-2xl font-bold tracking-wide text-black">
-            Deployments 
+            Deployments
           </h1>
           <button
             onClick={() => refetch()}
@@ -97,21 +97,13 @@ const RespectiveDeployment = () => {
                   {deployment.gitHubRepoName} <span className='text-sm text-white bg-gray-700 px-2 py-1 rounded-full font-medium'>Commit #8975</span>
                 </h2>
                 <span
-                  className="text-sm px-2 py-1 rounded-full font-medium"
-                  style={{
-                    backgroundColor:
-                      deployment.deploymentStatus === 'success'
-                        ? '#DEF7EC'
-                      : deployment.deploymentStatus === 'failed'
-                        ? 'red'
-                        : '#DDB928',
-                    color:
-                      deployment.deploymentStatus === 'success'
-                        ? '#03543F'
-                        : deployment.deploymentStatus === 'failed'
-                        ? 'white'
-                        : 'white',
-                  }}
+                  className={`text-sm px-2 py-1 rounded-full font-medium ${deployment.deploymentStatus === 'SUCCESS'
+                      ? 'bg-green-500 text-white'
+                      : deployment.deploymentStatus === 'FAILED'
+                        ? 'bg-red-500 text-white'
+                        : 'bg-yellow-300 text-yellow-800'
+                    }`}
+
                 >
                   {deployment.deploymentStatus.toUpperCase()}
                 </span>

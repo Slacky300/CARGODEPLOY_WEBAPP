@@ -14,6 +14,8 @@ const ViewDeployment = () => {
   const { socket } = useSocketContext();
   const [status, setStatus] = useState<string>("PENDING");
 
+  const [doesLogExistInDB, setDoesLogExistInDB] = useState<boolean>(false);
+
   const { data, isLoading, isError } = useQuery<Deployment>({
     queryKey: ["deployment", deploymentId],
     queryFn: async () => {
@@ -25,7 +27,20 @@ const ViewDeployment = () => {
     },
   });
 
+  const {data: logsData} = useQuery({
+    queryKey: ["logs", deploymentId],
+    queryFn: async () => {
+      const response = await fetch(`/api/logs?deploymentId=${deploymentId}`);
+      if (!response.ok) return null;
+      const data = await response.json();
+      setDoesLogExistInDB(true);
+      setLogs(data.logs.split("\n"));
+      return data.logs;
+    },
+  });
+
   useEffect(() => {
+    if(doesLogExistInDB) return;
     if (!socket || !deploymentId) return;
 
     // Use a room or channel if needed
@@ -69,7 +84,7 @@ const ViewDeployment = () => {
       route={`/dashboard/deployments/${data.projectId}`}
     >
       <div className="flex flex-col w-full h-full p-4 gap-6">
-        <DeploymentRepo deploymentInfo={data} status={status}/>
+        <DeploymentRepo deploymentInfo={data} status={status} doesLogExistInDB />
         <div
           className="
             bg-black
