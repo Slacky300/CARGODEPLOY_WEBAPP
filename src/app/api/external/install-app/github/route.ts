@@ -13,7 +13,6 @@ export const fetchAccessToken = async (installation_id: string | undefined) => {
         return { accessToken: "", expiresAt: "" };
     }
 
-    console.log('#######################fetchAccessToken#######################');
 
     const APP_ID = process.env.GITHUB_APP_ID;
     const privateKeyPath = path.resolve(process.cwd(), 'src/lib/cargodeploy_app_prkey.pem');
@@ -28,7 +27,6 @@ export const fetchAccessToken = async (installation_id: string | undefined) => {
         privateKey,
         { algorithm: 'RS256', expiresIn: '10m' }
     );
-    console.log(token);
     const installationResponse = await fetch(
         `https://api.github.com/app/installations/${installation_id}/access_tokens`,
         {
@@ -54,10 +52,7 @@ export const fetchAccessToken = async (installation_id: string | undefined) => {
     const client = await clerkClient();
     const user = await client.users.getUser(userId);
 
-    console.log("clerk expiresAt:", user.privateMetadata.githubAppInstAccTokenExpiresAt);
-
-
-    console.log("Expires At Github:", expiresAt);
+   
 
 
     
@@ -70,13 +65,6 @@ export const fetchAccessToken = async (installation_id: string | undefined) => {
             githubAppInstAccTokenExpiresAt: expiresAt,
         },
     });
-
-    
-
-    console.log("clerk expiresAt:", user.privateMetadata.githubAppInstAccTokenExpiresAt);
-
-
-
     return { accessToken, expiresAt };
 }
 

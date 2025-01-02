@@ -33,7 +33,6 @@ export const GET = async () => {
       }
     });
   }
-  console.log(user);
   return NextResponse.json({
     "synced": true ,
   })
