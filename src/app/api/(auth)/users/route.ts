@@ -6,6 +6,8 @@ export const GET = async () => {
 
   const {userId} = await auth();
   const user = await currentUser();
+  console.log(userId);
+  console.log(user);
 
   if(!userId || !user){
     return NextResponse.json({
@@ -31,8 +33,7 @@ export const GET = async () => {
       }
     });
   }
-
   return NextResponse.json({
-    "synced": true
+    "synced": true ,
   })
 }
