@@ -6,10 +6,12 @@ import { UseFormRegister } from "react-hook-form";
 interface SlugInputProps {
     slug: string;
     setSlug: (slug: string) => void;
+    slugExists: boolean;
+    setSlugExists: (exists: boolean) => void;
     register: UseFormRegister<CreateProjectFormValues>;
 }
 
-const SlugInput = ({ slug, setSlug, register }: SlugInputProps) => {
+const SlugInput = ({ slug, setSlug, register, setSlugExists }: SlugInputProps) => {
     const [debouncedSlug, setDebouncedSlug] = useState("");
 
     // Debounce the slug input to minimize API calls
@@ -45,7 +47,7 @@ const SlugInput = ({ slug, setSlug, register }: SlugInputProps) => {
             if (status === 500) {
                 throw new Error(message || "Error checking slug availability");
             }
-
+            setSlugExists(!available);
             return available;
         },
         enabled: !!debouncedSlug && debouncedSlug.length > 2, // Only trigger query if debouncedSlug is valid

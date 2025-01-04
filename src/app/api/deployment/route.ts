@@ -138,6 +138,7 @@ export const PATCH = async (req: NextRequest) => {
     }
     const deploymentId = deploymentIdWithStatus.split('-')[0];
     const statusD = deploymentIdWithStatus.split('-')[1] as DeploymentStatus;
+    
 
     if (!deploymentId || !statusD) {
         return NextResponse.json({
@@ -158,6 +159,29 @@ export const PATCH = async (req: NextRequest) => {
             error: "Deployment not found"
         });
     }
+
+    const project = await prisma.project.findUnique({
+        where:{
+               id:  deployment.projectId
+        }
+    })
+
+    if (!project) {
+        return NextResponse.json({
+            status: 404,
+            error: "Project not found"
+        });
+    }
+
+    const updateProjectDeploymentStatus = await prisma.project.update({
+        where: {
+            id: project.id
+        },
+        data: {
+            isDeployed: statusD === "SUCCESS" ? true : false
+        }
+    });
+
 
     const patchDeployment = await prisma.deployment.update({
         where: {

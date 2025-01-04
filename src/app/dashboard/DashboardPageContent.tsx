@@ -3,7 +3,7 @@
 import { Button, buttonVariants } from "@/components/ui/button"
 import { Modal } from "@/components/ui/modal"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { Folder, Github, Globe, Terminal, Trash2 } from "lucide-react"
+import { ExternalLink, Folder, Github, Globe, Terminal, Trash2 } from "lucide-react"
 import Link from "next/link"
 import { format } from "date-fns"
 import { useState } from "react"
@@ -19,12 +19,13 @@ interface Project {
     rootDir: string;
     createdAt: Date;
     updatedAt: Date;
+    isDeployed: boolean;
 }
 
 export const DashboardPageContent = () => {
     const [deletingCategory, setDeletingCategory] = useState<string | null>(null); //update to a more sensible name
     const [projectID, setProjectID] = useState<string | null>(null);
-    
+
 
 
 
@@ -43,7 +44,7 @@ export const DashboardPageContent = () => {
     });
 
     const queryClient = useQueryClient();
-    
+
     const deleteProject = useMutation({
         mutationFn: async (projectId: string) => {
             const res = await fetch(`/api/projects/${projectId}`, {
@@ -73,7 +74,7 @@ export const DashboardPageContent = () => {
 
     const handleDeleteProject = (projectId: string) => {
         // UseMutation for handling DELETE request
-       
+
         // Trigger the mutation
         deleteProject.mutate(projectId);
     };
@@ -91,11 +92,11 @@ export const DashboardPageContent = () => {
         return <DashboardEmptyState />
     }
 
-    
+
     return (
         <>
             <ul className="grid max-w-6xl grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-                
+
                 {projects.map((project: Project) => (
                     <li
                         key={project.id}
@@ -106,9 +107,10 @@ export const DashboardPageContent = () => {
                         <div className="pointer-events-none z-0 absolute inset-px rounded-lg shadow-sm transition-all duration-300 group-hover:shadow-md ring-1 ring-black/5" />
 
                         <div className="relative p-6 z-10">
-                            <div className="flex flex-wrap items-center gap-4 mb-6 sm:flex-row">
+                            <div className="flex flex-wrap items-center gap-4 mb-6">
+                                {/* Left Side: Project Logo */}
                                 <div
-                                    className="size-12 rounded-full"
+                                    className="w-12 h-12 rounded-full"
                                     style={{
                                         backgroundImage: `url(https://banner2.cleanpng.com/20240204/weo/transparent-goku-person-wearing-dragon-inspired-outfit-with-1710886882677.webp)`,
                                         backgroundSize: "cover",
@@ -117,20 +119,29 @@ export const DashboardPageContent = () => {
                                     }}
                                 />
 
-                                <div className="flex flex-wrap w-96 min-w-40 justify-between" >
-                                    <div>
-                                        <h3 className="text-lg/7 font-medium tracking-tight text-gray-950 ">
-                                            {project.name}
-                                        </h3>
-                                        <p className="text-sm/6 text-gray-600">
-                                            {format(new Date(project.createdAt), "MMM d, yyyy")}
-                                        </p>
-                                    </div>
-                                    <div className="">
-                                        <span className="text-green-600 font-bold">LIVE</span>
-                                    </div>
+                                {/* Center: Project Details */}
+                                <div className="flex-1 flex flex-col min-w-0">
+                                    <h3 className="font-medium text-sm tracking-tight text-gray-950 truncate">
+                                        {project.gitHubRepoURL.split("/").pop()?.split(".")[0]}
+                                    </h3>
+                                    <p className="text-sm text-gray-600">
+                                        {format(new Date(project.createdAt), "MMM d, yyyy")}
+                                    </p>
                                 </div>
+
+                                {/* Right Side: View Live Link */}
+                                {project.isDeployed && (
+                                    <Link
+                                    href={`https://${project.slugIdentifier}.cargodeploy.me`}
+                                    target="_blank"
+                                    className="text-sm text-blue-600 hover:text-blue-800 transition-colors flex items-center gap-2"
+                                >
+                                    View Live
+                                    <ExternalLink className="size-4" />
+                                </Link>
+                                )}
                             </div>
+
 
                             <div className="space-y-3 mb-6">
                                 <div className="flex items-center text-sm/5 text-gray-600">

@@ -6,6 +6,7 @@ import DashboardPage from '@/components/DashboardPage';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 // Import any icons you want from lucide-react
 import { RefreshCcw, FileCode2 } from 'lucide-react';
+import PageLoader from '@/components/PageLoader';
 
 interface Deployment {
   deploymentId: string;
@@ -51,7 +52,7 @@ const RespectiveDeployment = () => {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center flex-1 h-full w-full">
-        <LoadingSpinner />
+        <PageLoader text="Hang tight! We are fetching your deployments." />
       </div>
     );
   }
@@ -68,7 +69,7 @@ const RespectiveDeployment = () => {
   }
 
   return (
-    <DashboardPage title={`Project: ${deployments?.projectName}`}>
+    <DashboardPage title={`Project: ${deployments?.projectName}`} route='/dashboard'>
       <div className="flex flex-col gap-6 p-4">
         {/* Header Section */}
         <div className="flex items-center justify-between mb-4">

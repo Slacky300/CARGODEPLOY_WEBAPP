@@ -28,6 +28,7 @@ const CreateProjectForm = ({
   }
 
   const [slug, setSlug] = useState("");
+  const [slugExists, setSlugExists] = useState(false);
   const router = useRouter();
   const {
     register,
@@ -57,6 +58,7 @@ const CreateProjectForm = ({
   );
 
   const createProject = async (data: CreateProjectFormValues): Promise<any> => {
+    
     const response = await fetch("/api/projects", {
       method: "POST",
       headers: {
@@ -100,6 +102,10 @@ const CreateProjectForm = ({
   });
 
   const onSubmit = (data: CreateProjectFormValues) => {
+    if(slugExists){
+      alert("Slug already exists. Please choose a different slug.")
+      return;
+    }
     mutation.mutate(data);
   };
 
@@ -158,7 +164,7 @@ const CreateProjectForm = ({
             {errors.name && <p className="text-red-600">{errors.name.message}</p>}
           </div>
 
-          <SlugInput slug={slug} setSlug={setSlug} register={register} />
+          <SlugInput slug={slug} setSlug={setSlug} register={register}  setSlugExists={setSlugExists} slugExists={slugExists}/>
 
           <div>
             <label className="block text-sm font-medium mb-2" htmlFor="branch">
@@ -230,9 +236,17 @@ const CreateProjectForm = ({
           <div>
             <button
               type="submit"
+              disabled={mutation.isPending}
               className="w-full px-4 py-2 bg-gray-200 text-black rounded-md font-medium hover:bg-gray-700 hover:text-white transition"
             >
+              {mutation.isPending ? 
+              <>
+              <div className="loader border-t-transparent border-4 border-gray-500 rounded-full w-6 h-6 animate-spin"></div>
+              Creating Project...
+              </> : 
+              <>
               Create Project
+              </>}
             </button>
           </div>
         </form>

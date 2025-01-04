@@ -6,13 +6,14 @@ interface SocketContextValue {
   socket: Socket | null;
 }
 
-// Create a context for socket
 const SocketContext = createContext<SocketContextValue>({ socket: null });
 
-// Export a provider that sets up the socket
 export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
-  // Memoize the socket instance so it doesn't reconnect unnecessarily
-  const socket = useMemo(() => io("http://localhost:8080"), []);
+
+  const socket = useMemo(() => io("http://localhost:8080",{
+      reconnectionAttempts: 2,
+      reconnectionDelay: 10000    
+  }), []);
 
   return (
     <SocketContext.Provider value={{ socket }}>
@@ -21,5 +22,4 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-// Custom hook to easily consume the socket in any component
 export const useSocketContext = () => useContext(SocketContext);

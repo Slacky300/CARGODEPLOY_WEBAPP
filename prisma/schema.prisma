@@ -61,6 +61,7 @@ model Project {
     envVars        EnvironmentVariables[]
     branch         String
     token          String?
+    isDeployed     Boolean @default(false)
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
@@ -82,7 +83,7 @@ model Deployment {
 
 model Log {
     id           String     @id @default(cuid())
-    deployment   Deployment @relation(fields: [deploymentId], references: [id])
+    deployment   Deployment @relation(fields: [deploymentId], references: [id], onDelete: Cascade)
     deploymentId String      // Foreign key for the deployment relationship
     message      String
 
