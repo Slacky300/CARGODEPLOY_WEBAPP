@@ -3,7 +3,16 @@ import { NextRequest, NextResponse } from 'next/server';
 
 
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+
+    if(req.method !== 'GET') {
+        return NextResponse.json({
+            status: 405,
+            body: {
+                error: 'Method not allowed',
+            },
+        });
+    }
     const {userId} = await auth();
     if (!userId) {
         return NextResponse.json({

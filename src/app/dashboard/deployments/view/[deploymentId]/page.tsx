@@ -27,34 +27,33 @@ const ViewDeployment = () => {
     },
   });
 
-  const {data: logsData} = useQuery({
+  const { data: logsData } = useQuery({
     queryKey: ["logs", deploymentId],
     queryFn: async () => {
       const response = await fetch(`/api/logs?deploymentId=${deploymentId}`);
       if (!response.ok) return null;
       const data = await response.json();
       setDoesLogExistInDB(true);
+      if(logsData){}
       setLogs(data.logs.split("\n"));
       return data.logs;
     },
   });
 
   useEffect(() => {
-    if(doesLogExistInDB) return;
+    if (doesLogExistInDB) return;
     if (!socket || !deploymentId) return;
 
-    // Use a room or channel if needed
     socket.emit("join", deploymentId);
 
     socket.on("logUpdate", (payload: { deploymentId: string; logs: string }) => {
       if (payload?.logs) {
-        if(payload.logs === "SUCCESS" || payload.logs === "FAILED" ) {
+        if (payload.logs === "SUCCESS" || payload.logs === "FAILED") {
           setStatus(payload.logs);
           return;
         }
         setLogs((prevLogs) => [...prevLogs, payload.logs]);
       }
-
     });
 
     return () => {
@@ -106,6 +105,12 @@ const ViewDeployment = () => {
               No logs available yet. Waiting for updates...
             </div>
           )}
+        </div>
+
+        {/* Additional Note */}
+        <div className="mt-6 p-4 bg-yellow-100 text-yellow-700 rounded-md text-sm">
+          <p>
+          Please note: Logs may not be available immediately. Rest assured, you will be notified via email once your deployment has either failed or succeeded.          </p>
         </div>
       </div>
     </DashboardPage>

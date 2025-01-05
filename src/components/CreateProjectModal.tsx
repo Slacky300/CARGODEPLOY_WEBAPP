@@ -64,6 +64,10 @@ export const CreateProjectModal = ({
     createProject(data)
   }
 
+  if(control === undefined) {
+    return null
+  }
+
   return (
     <>
       <div className={containerClassName} onClick={() => setIsOpen(true)}>

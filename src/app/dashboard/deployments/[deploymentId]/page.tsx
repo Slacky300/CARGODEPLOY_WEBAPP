@@ -3,8 +3,6 @@ import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useParams, useRouter } from 'next/navigation';
 import DashboardPage from '@/components/DashboardPage';
-import { LoadingSpinner } from '@/components/LoadingSpinner';
-// Import any icons you want from lucide-react
 import { RefreshCcw, FileCode2 } from 'lucide-react';
 import PageLoader from '@/components/PageLoader';
 
@@ -27,7 +25,6 @@ const RespectiveDeployment = () => {
   const router = useRouter();
 
   const {
-    data,
     isLoading,
     isError,
     error,

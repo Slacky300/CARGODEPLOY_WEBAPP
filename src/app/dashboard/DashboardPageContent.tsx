@@ -24,7 +24,6 @@ interface Project {
 
 export const DashboardPageContent = () => {
     const [deletingCategory, setDeletingCategory] = useState<string | null>(null); //update to a more sensible name
-    const [projectID, setProjectID] = useState<string | null>(null);
 
 
 
@@ -199,7 +198,7 @@ export const DashboardPageContent = () => {
                             Delete Category
                         </h2>
                         <p className="text-sm/6 text-gray-600">
-                            Are you sure you want to delete the category "{deletingCategory}"?
+                            Are you sure you want to delete the category {deletingCategory}?
                             This action cannot be undone.
                         </p>
                     </div>

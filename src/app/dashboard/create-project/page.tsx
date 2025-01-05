@@ -3,7 +3,8 @@ import React from 'react'
 import ListRepositories from './ListRepositories';
 import { currentUser } from '@clerk/nextjs/server';
 import prisma from '@/lib/db';
-import { fetchAccessToken } from '@/app/api/external/install-app/github/route';
+import { auth, clerkClient } from '@clerk/nextjs/server';
+
 
 const CreateProject = async () => {
 
@@ -42,10 +43,33 @@ const CreateProject = async () => {
     
         if (isTokenExpired) {
             console.log("Token is expired. Fetching a new token...");
-            const res = await fetchAccessToken(dbUser?.github_installation_id?.toString()); //Improve this installation_id fetching param
-            token = res.accessToken;
-    
-            console.log("Fetched new token:", token);
+            if (!dbUser?.github_installation_id) {
+                return null;
+            }
+            try {
+                const response = await fetch(`http://localhost:3000/api/external/github?installation_id=${dbUser.github_installation_id}`,{
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-api-key': 'skapi_EBYdfafaav0dPC0iPdfaZeW4bTpaRJ66eXen2lB'
+                    }
+                });
+                const data = await response.json();
+                const { accessToken, expiresAt } = data;
+                const clerkClientVar = await clerkClient();
+                const {userId} = await auth();
+                if (!userId) {
+                    return null;
+                }
+                await clerkClientVar.users.updateUser(userId, {
+                    privateMetadata: {
+                        githubAppInstAccessToken: accessToken,
+                        githubAppInstAccTokenExpiresAt: expiresAt,
+                    },
+                });
+            } catch (e) {
+                console.error(e);
+            }
     
             
         } else {

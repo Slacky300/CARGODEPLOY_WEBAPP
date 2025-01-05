@@ -2,18 +2,17 @@
 import React, { useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { Trash, User, Github } from "lucide-react";
-import { Repository } from "@/config";
 import { Button } from "@/components/ui/button";
 import { useRepositoryDetails } from "@/hooks/use-repository-details";
 import SlugInput from "@/components/SlugInput";
 import { CreateProjectFormValues } from "@/config/index";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
+import { GithubRepository } from "@/lib/utils";
 
 interface RepoToDisplay {
-  repo: Repository | null;
-  setSelectedRepo: (repo: Repository) => void;
+  repo: GithubRepository | null;
+  setSelectedRepo: (repo: GithubRepository) => void;
   setNextSection: (next: boolean) => void;
   token?: string;
 }
@@ -23,10 +22,7 @@ const CreateProjectForm = ({
   setNextSection,
   token,
 }: RepoToDisplay) => {
-  if (!repo) {
-    return null;
-  }
-
+ 
   const [slug, setSlug] = useState("");
   const [slugExists, setSlugExists] = useState(false);
   const router = useRouter();
@@ -51,14 +47,53 @@ const CreateProjectForm = ({
     name: "envVars",
   });
 
+
+
   const { branches, branchesLoading } = useRepositoryDetails(
     repo?.owner.login,
     repo?.name,
     token ?? token
   );
 
-  const createProject = async (data: CreateProjectFormValues): Promise<any> => {
-    
+  type UpdatedProject = {
+    token: string | null;
+    name: string;
+    branch: string;
+    rootDir: string;
+    id: string;
+    gitHubRepoURL: string;
+    slugIdentifier: string;
+    userId: string;
+    createdAt: Date;
+    updatedAt: Date;
+    isDeployed: boolean;
+  };
+  
+  type NewDeployment = {
+    status: "PENDING" | "SUCCESS" | "FAILED";
+    id: string;
+    createdAt: Date;
+    updatedAt: Date;
+    projectId: string;
+    containerId: string | null;
+  };
+  
+  type ApiResponse = {
+    status: number;
+    success: boolean;
+    data: {
+      updatedProject: UpdatedProject;
+      newDeployment: NewDeployment;
+    };
+  };
+  
+  type ApiError = {
+    message?: string;
+  };
+  
+  const createProject = async (
+    data: CreateProjectFormValues
+  ): Promise<ApiResponse> => {
     const response = await fetch("/api/projects", {
       method: "POST",
       headers: {
@@ -74,41 +109,35 @@ const CreateProjectForm = ({
         token: data.token,
       }),
     });
-
+  
     if (!response.ok) {
       throw new Error("Failed to create project");
     }
-    const dataM = await response.json();
-    return dataM;
+  
+    return response.json();
   };
-
+  
   const queryClient = useQueryClient();
-  const mutation = useMutation<
-    any, // API response type
-    Error, // Error type
-    CreateProjectFormValues // Variables type
-  >({
+  const mutation = useMutation<ApiResponse, ApiError, CreateProjectFormValues>({
     mutationFn: createProject,
     onSuccess: (data) => {
       console.log("Project created successfully:", data);
       queryClient.invalidateQueries({ queryKey: ["projects"] });
-      router.push(`/dashboard/deployments/view/${data?.data?.newDeployment.id}`)
-      
-
+      router.push(`/dashboard/deployments/view/${data.data.newDeployment.id}`);
     },
-    onError: (error: any) => {
-     alert(error.message || "An error occurred while creating the project.");
+    onError: (error) => {
+      alert(error.message || "An error occurred while creating the project.");
     },
   });
-
+  
   const onSubmit = (data: CreateProjectFormValues) => {
-    if(slugExists){
-      alert("Slug already exists. Please choose a different slug.")
+    if (slugExists) {
+      alert("Slug already exists. Please choose a different slug.");
       return;
     }
     mutation.mutate(data);
   };
-
+  
   return (
     <div className="flex flex-col md:flex-row bg-gray-100 text-black p-8 rounded-lg max-w-6xl shadow-md gap-6">
       {/* Left Section - Repository Details */}

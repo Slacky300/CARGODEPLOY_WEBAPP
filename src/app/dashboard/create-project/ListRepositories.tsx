@@ -3,12 +3,11 @@
 import GithubAppInstallButton from "@/components/GithubAppInstallButton";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { Button } from "@/components/ui/button";
-import { fetchAllGithubRepos } from "@/lib/utils";
+import { fetchAllGithubRepos, GithubRepository } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import { useState } from "react";
 import CreateProjectForm from "./CreateProjectForm";
-import { Repository } from "@/config";
 
 interface RepoOwner {
     avatar?: string;
@@ -18,11 +17,11 @@ interface RepoOwner {
 
 const ListRepositories = ({ avatar, username, token }: RepoOwner) => {
     const [search, setSearch] = useState("");
-    const [selectedRepo, setSelectedRepo] = useState<Repository | null>(null);
+    const [selectedRepo, setSelectedRepo] = useState<GithubRepository | null>(null);
     const [nextSection, setNextSection] = useState(false);
 
 
-    const { data: repositories = [], isLoading, isError } = useQuery<Repository[]>({
+    const { data: repositories = [], isLoading, isError } = useQuery<GithubRepository[]>({
         queryKey: ["repositories"],
         queryFn: async () => {
             const repositories = await fetchAllGithubRepos(token);

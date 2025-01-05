@@ -1,6 +1,6 @@
 "use client";
 import React from 'react'
-import { RefreshCcw, ExternalLink, GitBranch } from "lucide-react";
+import { RefreshCcw, ExternalLink } from "lucide-react";
 import { Deployment } from '@/config';
 
 type DeploymentInfo = {

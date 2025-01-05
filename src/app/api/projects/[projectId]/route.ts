@@ -1,9 +1,8 @@
 import prisma from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
-import { NextApiRequest } from "next";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-export const DELETE = async (req: NextApiRequest,   { params }: { params: Promise<{ projectId: string }> }
+export const DELETE = async (req: NextRequest,   { params }: { params: Promise<{ projectId: string }> }
 ) => {
     try {
         const { userId } = await auth();
