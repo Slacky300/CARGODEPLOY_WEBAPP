@@ -53,10 +53,10 @@ export const DELETE = async (req: NextApiRequest,   { params }: { params: Promis
             { success: true, message: "Project deleted successfully", data: result},
             { status: 200 }
         );
-    } catch (error: any) {
+    } catch (error) {
         console.error("Error deleting project:", error);
         return NextResponse.json(
-            { success: false, error: "Internal Server Error", details: error.message },
+            { success: false, error: "Internal Server Error", details: error },
             { status: 500 }
         );
     }

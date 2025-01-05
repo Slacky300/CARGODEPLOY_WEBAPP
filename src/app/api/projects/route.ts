@@ -40,7 +40,7 @@ export const GET = async () => {
 
 
 
-export const POST = async (req: NextRequest, res: NextResponse) => {
+export const POST = async (req: NextRequest) => {
     const { userId } = await auth();
 
     if (!userId) {
@@ -119,7 +119,7 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
         });
     }
 
-    let envIds = [];
+    const envIds = [];
 
     if (envVars && Array.isArray(envVars)) {
         for (const x of envVars) {

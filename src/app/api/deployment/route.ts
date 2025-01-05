@@ -3,7 +3,7 @@ import { auth } from "@clerk/nextjs/server"
 import { DeploymentStatus } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
-export const POST = async (req: NextRequest, res: NextResponse) => {
+export const POST = async (req: NextRequest) => {
     const {userId} = await auth();
 
     if (!userId) {
@@ -173,7 +173,7 @@ export const PATCH = async (req: NextRequest) => {
         });
     }
 
-    const updateProjectDeploymentStatus = await prisma.project.update({
+    await prisma.project.update({
         where: {
             id: project.id
         },

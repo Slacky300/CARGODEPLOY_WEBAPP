@@ -1,6 +1,4 @@
 "use client"
-
-import MaxWidthWrapper from "@/components/MaxWidthWrapper"
 import { SignIn } from "@clerk/nextjs"
 
 const Page = () => {

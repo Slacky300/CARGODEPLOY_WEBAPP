@@ -22,7 +22,7 @@ export const GET = async () => {
   });
 
   if(!doesUserExistsInDB){
-    const newUser = await prisma.user.create({
+    await prisma.user.create({
       data: {
         externalId: userId,
         email: user.emailAddresses[0].emailAddress,

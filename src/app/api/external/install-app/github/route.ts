@@ -50,7 +50,7 @@ export const fetchAccessToken = async (installation_id: string | undefined) => {
         throw new Error('User not authenticated.');
     }
     const client = await clerkClient();
-    const user = await client.users.getUser(userId);
+    await client.users.getUser(userId);
 
    
 
@@ -123,12 +123,16 @@ export const GET = async (req: NextRequest) => {
 
         return NextResponse.redirect(`http://localhost:3000/dashboard/create-project`);
 
-    } catch (error: any) {
-        console.error('Error:', error.message);
+    } catch (error: unknown) {
+        if (error instanceof Error) {
+            console.error('Error:', error.message);
+        } else {
+            console.error('Unknown error:', error);
+        }
         return NextResponse.json({
             status: 500,
             message: 'Internal server error',
-            error: error.message,
+            error: error instanceof Error ? error.message : 'Internal server error',
         });
     }
 };

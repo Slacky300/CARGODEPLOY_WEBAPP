@@ -2,7 +2,7 @@ import { auth } from '@clerk/nextjs/server';
 import prisma from '@/lib/db';
 import { NextRequest, NextResponse } from 'next/server';
 
-export default async function handler(req: NextRequest, res: NextResponse) {
+export default async function handler(req: NextRequest) {
     const { userId }  = await auth();
     if (!userId) {
         return NextResponse.json({status: 401, error: 'Unauthorized' });
@@ -14,7 +14,7 @@ export default async function handler(req: NextRequest, res: NextResponse) {
         return NextResponse.json({ status: 400, error: 'Invalid deployment ID' });
     }
 
-    const deployment = await prisma.deployment.findUnique({
+    await prisma.deployment.findUnique({
         where: {
             id: deploymentId
         }

@@ -9,6 +9,7 @@ import SlugInput from "@/components/SlugInput";
 import { CreateProjectFormValues } from "@/config/index";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 interface RepoToDisplay {
   repo: Repository | null;
@@ -20,7 +21,6 @@ interface RepoToDisplay {
 const CreateProjectForm = ({
   repo,
   setNextSection,
-  setSelectedRepo,
   token,
 }: RepoToDisplay) => {
   if (!repo) {
@@ -51,7 +51,7 @@ const CreateProjectForm = ({
     name: "envVars",
   });
 
-  const { branches, branchesError, branchesLoading } = useRepositoryDetails(
+  const { branches, branchesLoading } = useRepositoryDetails(
     repo?.owner.login,
     repo?.name,
     token ?? token
@@ -116,7 +116,7 @@ const CreateProjectForm = ({
         <img
           src={repo?.owner.avatar_url}
           alt="Owner Avatar"
-          className="w-24 h-24 rounded-full shadow-lg mb-4"
+          className="rounded-full shadow-lg mb-4"
         />
         <div className="flex items-center justify-center space-x-2">
           <h3 className="font-bold">{repo?.name}</h3>

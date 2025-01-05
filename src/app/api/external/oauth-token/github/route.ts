@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 
 
-export async function GET(req: NextRequest, res: NextResponse) {
+export async function GET() {
     const {userId} = await auth();
     if (!userId) {
         return NextResponse.json({
