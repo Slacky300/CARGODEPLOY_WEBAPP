@@ -7,7 +7,6 @@ import { useQuery } from "@tanstack/react-query";
 import { Deployment } from "@/config";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { useSocketContext } from "@/context/SocketContext";
-import { toast } from "@/hooks/use-toast";
 
 const ViewDeployment = () => {
   const { deploymentId } = useParams();

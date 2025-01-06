@@ -47,7 +47,7 @@ const CreateProject = async () => {
                 return null;
             }
             try {
-                const response = await fetch(`http://localhost:3000/api/external/github?installation_id=${dbUser.github_installation_id}`,{
+                const response = await fetch(`${process.env.FRONTEND_URL}/api/external/github?installation_id=${dbUser.github_installation_id}`,{
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
