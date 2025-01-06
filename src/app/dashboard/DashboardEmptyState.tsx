@@ -22,7 +22,7 @@ export const DashboardEmptyState = () => {
         Start deploying your repos by creating your first Project.
       </p>
 
-      <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+      {/* <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4">
         <Button
           variant="outline"
           className="flex items-center space-x-2 w-full sm:w-auto"
@@ -33,12 +33,10 @@ export const DashboardEmptyState = () => {
           <span>{"Quickstart"}</span>
         </Button>
 
-        {/* <CreateProjectModal containerClassName="w-full sm:w-auto"> */}
           <Button className="flex bg-gray-800 items-center space-x-2 w-full sm:w-auto">
             <span>Add Project</span>
           </Button>
-        {/* </CreateProjectModal> */}
-      </div>
+      </div> */}
     </Card>
   )
 }

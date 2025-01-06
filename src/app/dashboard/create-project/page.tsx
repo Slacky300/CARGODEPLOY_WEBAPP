@@ -51,7 +51,7 @@ const CreateProject = async () => {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
-                        'x-api-key': 'skapi_EBYdfafaav0dPC0iPdfaZeW4bTpaRJ66eXen2lB'
+                        'x-api-key': `${process.env.API_KEY}`
                     }
                 });
                 const data = await response.json();

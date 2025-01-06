@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Providers } from "@/components/providers/QueryProvider";
 import { SocketProvider } from "@/context/SocketContext";
+import { Toaster } from "@/components/ui/toaster"
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -31,6 +32,7 @@ export default function RootLayout({
         >
           <main className="relative flex flex-col min-h-screen">
             <div className="flex-grow flex-1">
+              <Toaster />
               <Providers>
                 <SocketProvider>
                   {children}

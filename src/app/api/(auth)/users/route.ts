@@ -29,7 +29,7 @@ export const GET = async () => {
         name: user.fullName,
         avatar: user.imageUrl,
         username: user.username,
-        quotaLimit: 1
+        quotaLimit: 3
       }
     });
   }

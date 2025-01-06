@@ -27,22 +27,22 @@ const SIDEBAR_ITEMS: SidebarCategory[] = [
       { href: "/dashboard", icon: Home, text: "Dashboard" },
       { href: "/dashboard/create-project", icon: NotepadText, text: "Create Project" }
     ],
-  },
-  {
-    category: "Account",
-    items: [{ href: "/dashboard/upgrade", icon: Gem, text: "Upgrade" }],
-  },
-  {
-    category: "Settings",
-    items: [
-      { href: "/dashboard/api-key", icon: Key, text: "API Key" },
-      {
-        href: "/dashboard/account-settings",
-        icon: Settings,
-        text: "Account Settings",
-      },
-    ],
-  },
+  }
+  // {
+  //   category: "Account",
+  //   items: [{ href: "/dashboard/upgrade", icon: Gem, text: "Upgrade" }],
+  // },
+  // {
+  //   category: "Settings",
+  //   items: [
+  //     { href: "/dashboard/api-key", icon: Key, text: "API Key" },
+  //     {
+  //       href: "/dashboard/account-settings",
+  //       icon: Settings,
+  //       text: "Account Settings",
+  //     },
+  //   ],
+  // },
 ]
 
 const Sidebar = ({ onClose }: { onClose?: () => void }) => {

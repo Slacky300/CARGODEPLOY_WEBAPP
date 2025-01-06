@@ -63,6 +63,7 @@ export const POST = async (req: NextRequest) => {
         });
     }
 
+
     const body = await req.json();
 
     if (!body) {
@@ -80,6 +81,20 @@ export const POST = async (req: NextRequest) => {
             status: 400,
             success: false,
             error: "Please provide all required fields"
+        });
+    }
+
+    const userProjects = await prisma.project.findMany({
+        where: {
+            user: user
+        }
+    });
+
+    if(userProjects.length === user.quotaLimit) {
+        return NextResponse.json({
+            status: 400,
+            success: false,
+            error: "You have reached your project limit"
         });
     }
 
@@ -159,7 +174,7 @@ export const POST = async (req: NextRequest) => {
         value: value
     }));
 
-    const webhookHit = await fetch(`https://n8n.slacky.xyz/webhook/46c1a25f-1e1d-41e1-831c-acaab56b5449`, {
+    const webhookHit = await fetch(`${process.env.N8N_WEBHOOK_URL}`, {
         method: "POST",
         body: JSON.stringify({
 

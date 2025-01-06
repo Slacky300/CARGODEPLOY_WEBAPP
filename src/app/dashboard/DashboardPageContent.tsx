@@ -9,6 +9,8 @@ import { format } from "date-fns"
 import { useState } from "react"
 import { LoadingSpinner } from "@/components/LoadingSpinner"
 import { DashboardEmptyState } from "./DashboardEmptyState"
+import { useToast } from "@/hooks/use-toast"
+import { ToastAction } from "@/components/ui/toast"
 
 interface Project {
     id: string;
@@ -24,7 +26,7 @@ interface Project {
 
 export const DashboardPageContent = () => {
     const [deletingCategory, setDeletingCategory] = useState<string | null>(null); //update to a more sensible name
-
+    const {toast} = useToast();
 
 
 
@@ -54,7 +56,10 @@ export const DashboardPageContent = () => {
             });
 
             if (!res.ok) {
-                throw new Error("Failed to delete project");
+                toast({
+                    title: "Failed to delete project",
+                    description: "Please try again later"
+                })
             }
 
             const { success } = await res.json();
@@ -63,10 +68,17 @@ export const DashboardPageContent = () => {
         onSuccess: () => {
             // Invalidate cache or refetch project-related queries
             queryClient.invalidateQueries({ queryKey: ["projects"] });
-            alert("Project deleted successfully");
+            toast({
+                title: "Project deleted successfully",
+                description: "The project has been deleted successfully"
+            })
         },
-        onError: () => {
-            alert("Failed to delete project");
+        onError: (error, projectId) => {
+            toast({
+                title: "Failed to delete project",
+                description: "Please try again later",
+                action: <ToastAction altText="Retry" onClick={() => { deleteProject.mutate(projectId) }}>Retry</ToastAction>
+            })
         },
     });
 
@@ -129,7 +141,7 @@ export const DashboardPageContent = () => {
                                 </div>
 
                                 {/* Right Side: View Live Link */}
-                                {project.isDeployed && (
+                                {project.isDeployed ? (
                                     <Link
                                     href={`https://${project.slugIdentifier}.cargodeploy.me`}
                                     target="_blank"
@@ -138,7 +150,11 @@ export const DashboardPageContent = () => {
                                     View Live
                                     <ExternalLink className="size-4" />
                                 </Link>
-                                )}
+                                ): project.createdAt !== project.updatedAt ? (
+                                    <>
+                                    <span className="text-sm text-white bg-gray-600 rounded-sm p-4">RETRY</span>
+                                    </>
+                                ):<></>}
                             </div>
 
 

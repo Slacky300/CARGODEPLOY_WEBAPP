@@ -7,6 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Deployment } from "@/config";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { useSocketContext } from "@/context/SocketContext";
+import { toast } from "@/hooks/use-toast";
 
 const ViewDeployment = () => {
   const { deploymentId } = useParams();
@@ -45,6 +46,7 @@ const ViewDeployment = () => {
     if (!socket || !deploymentId) return;
 
     socket.emit("join", deploymentId);
+  
 
     socket.on("logUpdate", (payload: { deploymentId: string; logs: string }) => {
       if (payload?.logs) {

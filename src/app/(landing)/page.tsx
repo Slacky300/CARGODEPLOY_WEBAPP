@@ -1,27 +1,64 @@
 import MaxWidthWrapper from "@/components/MaxWidthWrapper";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { BarChart, Lock, Shield } from "lucide-react";
+import { BarChart, Github, Lock, Rocket, Server, Shield, Users } from "lucide-react";
 import Link from "next/link";
 
 
 const PERKS = [
-
   {
-    title: "Authorization",
+    title: "Seamless Deployment",
     icon: <Lock className="w-1/3 h-1/3" />,
-    description: "Authorization is the process of giving someone permission to do or have something.",
+    description: "Automate the deployment of modern frontend applications like React and Vite with minimal manual intervention.",
   },
   {
-    title: "Security",
-    icon: <Shield className="w-1/3 h-1/3" />,
-    description: "Security is the degree of resistance to, or protection from, harm.",
-  },
-  {
-    title: "Performance",
+    title: "Scalability",
     icon: <BarChart className="w-1/3 h-1/3" />,
-    description: "Performance is the degree to which a system or machine performs its designated functions.",
+    description: "Leverage Kubernetes for efficient container orchestration, ensuring scalable and optimized resource management.",
+  },
+  {
+    title: "High Availability",
+    icon: <Shield className="w-1/3 h-1/3" />,
+    description: "Store and serve static assets with AWS S3, guaranteeing high availability and reliability for your applications.",
+  },
+  {
+    title: "Multi-Tenant Support",
+    icon: <Users className="w-1/3 h-1/3" />,
+    description: "Manage multiple applications and subdomains under a single, cohesive system with multi-tenant environment support.",
+  },
+  {
+    title: "Reverse Proxy Routing",
+    icon: <Server className="w-1/3 h-1/3" />,
+    description: "Utilize Node.js for job management and reverse proxy routing, ensuring reliable delivery of applications.",
+  },
+  {
+    title: "Performance Optimization",
+    icon: <Rocket className="w-1/3 h-1/3" />,
+    description: "Optimize performance and reduce overhead, combining containerization, cloud storage, and a reverse proxy approach.",
   }
-]
+];
+
+
+
+function Footer() {
+  return (
+    <footer className="bg-gray-200 text-white py-6 mt-12">
+      <div className="max-w-6xl mx-auto px-4">
+        <div className="flex justify-between items-center">
+          <div className="text-sm font-bold text-black">
+            &copy; {new Date().getFullYear()} CargoDeploy. All rights reserved.
+          </div>
+          <div className="flex items-center space-x-4">
+            <Link href="https://github.com/Slacky300" target="_blank" passHref>
+              <span className="text-black" rel="noopener noreferrer">
+                <Github className="w-6 h-6" />
+              </span>
+            </Link>
+          </div>
+        </div>
+      </div>
+    </footer>
+  );
+}
 
 export default function Home() {
   return (
@@ -49,7 +86,7 @@ export default function Home() {
         <MaxWidthWrapper classname="py-20">
           <div className="grid grid-cols-1 gap-y-12 sm:grid-cols-1 md:grid-cols-3 lg:grid-cols-3 md:gap-x-6 sm:gap-x-6 lg:gap-x-8 lg:gap-y-0">
             {PERKS.map((perk, index) => (
-              <div key={index} className="text-center lg:block lg:text-center">
+              <div key={index} className="text-center mb-8 lg:block lg:text-center">
                 <div className="md:flex-shrink-0 flex justify-center">
                   <div className="h-16 w-16 flex items-center justify-center rounded-full bg-yellow-400 text-black ml-1">
                     {perk.icon}
@@ -65,6 +102,7 @@ export default function Home() {
           </div>
         </MaxWidthWrapper>
       </section>
+      <Footer />
     </>
   );
 }

@@ -9,6 +9,7 @@ import { CreateProjectFormValues } from "@/config/index";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { GithubRepository } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 
 interface RepoToDisplay {
   repo: GithubRepository | null;
@@ -26,6 +27,7 @@ const CreateProjectForm = ({
   const [slug, setSlug] = useState("");
   const [slugExists, setSlugExists] = useState(false);
   const router = useRouter();
+  const {toast} = useToast();
   const {
     register,
     handleSubmit,
@@ -121,18 +123,30 @@ const CreateProjectForm = ({
   const mutation = useMutation<ApiResponse, ApiError, CreateProjectFormValues>({
     mutationFn: createProject,
     onSuccess: (data) => {
-      console.log("Project created successfully:", data);
+      toast({
+        title: `Project for ${data.data.updatedProject.gitHubRepoURL.split("/")[1].split(".")[0]} created successfully`,
+        description: `Deployment is in progress. You will be redirected to the deployment page shortly.`,
+      })
       queryClient.invalidateQueries({ queryKey: ["projects"] });
       router.push(`/dashboard/deployments/view/${data.data.newDeployment.id}`);
     },
     onError: (error) => {
-      alert(error.message || "An error occurred while creating the project.");
+     
+      toast({
+        title: "Failed to create project",
+        description: error.message || "An error occurred",
+        color: "bg-red-500",
+      });
     },
   });
   
   const onSubmit = (data: CreateProjectFormValues) => {
     if (slugExists) {
-      alert("Slug already exists. Please choose a different slug.");
+      toast({
+        title: "Slug already exists",
+        description: "Please enter a different slug",
+        color: "bg-yellow-500",
+      });
       return;
     }
     mutation.mutate(data);
