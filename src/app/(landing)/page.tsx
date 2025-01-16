@@ -75,11 +75,16 @@ export default function Home() {
 
 
           <div className="flex flex-col sm:flex-row gap-4 mt-6">
-            <Link href='/product' className={buttonVariants()}>
+            <Link href='/dashboard' className={buttonVariants()}>
               Get Started
             </Link>
             <Button variant={`ghost`}>Learn More &rarr;</Button>
           </div>
+          <div className="mt-12 text-red-600 font-medium">
+            Note: Signups are temporarily closed due to budget constraints on our AKS (Azure Kubernetes Service).
+            We appreciate your understanding and encourage you to check back soon for updates.
+          </div>
+
         </div>
       </MaxWidthWrapper>
       <section className="border-t border-gray-200 bg-gray-50">

@@ -11,7 +11,7 @@ const SocketContext = createContext<SocketContextValue>({ socket: null });
 
 export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 
-  const socket = useMemo(() => io(`${process.env.BACKEND_URL}`,{
+  const socket = useMemo(() => io(`http://localhost:8080`,{
       reconnectionAttempts: 10,
       reconnectionDelay: 1000    
   }), []);
