@@ -1,8 +1,29 @@
 # CargoDeploy
 
-[SERVER_SIDE_REPO](https://github.com/Slacky300/CargoDeploy)
 
-CargoDeploy is a modern deployment platform designed to automate frontend builds, store assets with AWS S3, and deliver seamlessly via a Node.js reverse proxy. It is scalable, efficient, and built for modern frameworks like React and Vite.
+[**Server-Side Repository**](https://github.com/Slacky300/CargoDeploy)  
+
+CargoDeploy is a cutting-edge deployment platform that automates frontend builds, stores assets securely in AWS S3, and delivers them seamlessly using a Node.js reverse proxy. Designed for modern frameworks like React and Vite, it ensures scalability, efficiency, and reliability.  
+
+---
+
+## Dashboard Previews  
+
+**Dashboard:**  
+![Dashboard Screenshot](https://github.com/user-attachments/assets/ef0491fa-90fc-4a0e-b5bb-6ade97891a9a)  
+
+**Deployment List:**  
+![Deployment List Screenshot](https://github.com/user-attachments/assets/36a4977b-2680-4350-ade5-5b9ba4466a1d)  
+
+**Logs of Deployment:**  
+![Logs Screenshot 1](https://github.com/user-attachments/assets/89986899-aa73-4c82-8341-02cde1041ca8)  
+![Logs Screenshot 2](https://github.com/user-attachments/assets/9e198f40-13e0-47fb-bfb8-d7d95874fac3)  
+
+**Deployed FrontendWebApp**
+![image](https://github.com/user-attachments/assets/51b1995c-b82b-4675-8914-ced2895848b6)
+
+
+---
 
 ## Table of Contents
 
