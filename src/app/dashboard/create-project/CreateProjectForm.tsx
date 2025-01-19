@@ -10,6 +10,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { GithubRepository } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
+import CommitChoice from "./CommitChoice";
 
 interface RepoToDisplay {
   repo: GithubRepository | null;
@@ -17,7 +18,6 @@ interface RepoToDisplay {
   setNextSection: (next: boolean) => void;
   token?: string;
 }
-
 const CreateProjectForm = ({
   repo,
   setNextSection,
@@ -25,6 +25,7 @@ const CreateProjectForm = ({
 }: RepoToDisplay) => {
  
   const [slug, setSlug] = useState("");
+  const [showModal , setShowModal] = useState(false);
   const [slugExists, setSlugExists] = useState(false);
   const router = useRouter();
   const {toast} = useToast();
@@ -39,6 +40,7 @@ const CreateProjectForm = ({
       branch: "",
       rootDir: "",
       slug: "",
+      commit: "",
       token: token,
       envVars: [{ key: "", value: "" }],
     },
@@ -48,7 +50,6 @@ const CreateProjectForm = ({
     control,
     name: "envVars",
   });
-
 
 
   const { branches, branchesLoading } = useRepositoryDetails(
@@ -152,6 +153,18 @@ const CreateProjectForm = ({
     mutation.mutate(data);
   };
   
+  const handleOnClick = () => {
+    setShowModal(true);
+  }
+  const [ getCommit, setGetCommit ] = useState<{ sha: string } | null>(null);
+  const getCommitData = (selectedCommit: any) => {
+    setGetCommit(selectedCommit);
+    setShowModal(false);
+  }
+
+  const cancelHandler = () => {
+      setShowModal(false);
+  }
   return (
     <div className="flex flex-col md:flex-row bg-gray-100 text-black p-8 rounded-lg max-w-6xl shadow-md gap-6">
       {/* Left Section - Repository Details */}
@@ -231,6 +244,28 @@ const CreateProjectForm = ({
             {errors.branch && <p className="text-red-600">{errors.branch.message}</p>}
           </div>
 
+          {/* Div which Hnadle the Commit Data */}
+          <div>
+            <label className="block text-sm font-medium mb-2" htmlFor="commit">
+              Commit
+            </label>
+            <input
+              id="commit"
+              {...register("commit", { required: "Commit is required" })}
+              placeholder="Enter commit hash"
+              className="w-full px-4 py-2 rounded-md bg-gray-200 text-black border border-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500"
+              value={getCommit ? getCommit.sha : ""}
+            />
+            {errors.commit && <p className="text-red-600">{errors.commit.message}</p>}
+            <Button
+              variant="ghost"
+              className="text-sm text-blue-600 hover:underline"
+              onClick={handleOnClick}
+            >
+              Choose Commit
+            </Button>
+          </div>
+
           <div>
             <label className="block text-sm font-medium mb-2" htmlFor="rootDir">
               Root Folder
@@ -293,7 +328,11 @@ const CreateProjectForm = ({
             </button>
           </div>
         </form>
+        
       </div>
+      {
+        showModal && <CommitChoice token={token ? String(token) : ''} repo = {repo} onCommitSubmit = {getCommitData} onClose = {()=> setShowModal(false)} />
+      }
     </div>
   );
 };

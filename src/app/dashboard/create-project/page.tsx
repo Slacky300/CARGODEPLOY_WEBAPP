@@ -4,6 +4,8 @@ import ListRepositories from './ListRepositories';
 import { currentUser } from '@clerk/nextjs/server';
 import prisma from '@/lib/db';
 import { auth, clerkClient } from '@clerk/nextjs/server';
+import CommitChoice from './CommitChoice';
+
 
 
 const CreateProject = async () => {
@@ -78,10 +80,14 @@ const CreateProject = async () => {
             console.log("Existing token:", token);
         }
     }
-    
+
+
 
 
     return (
+        // <div>
+        //     <CommitChoice token = {token ? String(token) : ''} />
+        // </div>
         <DashboardPage title='Create Project' route='/dashboard'>
             <ListRepositories avatar={user?.externalAccounts[0].imageUrl} username={user?.externalAccounts[0].username}
                 token={token as string | undefined} />

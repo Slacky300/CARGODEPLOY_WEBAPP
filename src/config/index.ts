@@ -117,6 +117,7 @@ export interface CreateProjectFormValues {
     rootDir: string;
     slug: string;
     token: string;
+    commit : string;
     envVars: { key: string; value: string }[];
 }
 

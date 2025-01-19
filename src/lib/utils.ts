@@ -75,6 +75,34 @@ export const fetchPrivateGithubRepos = async (
   }
 };
 
+const owner = 'GuptaAman11'; // Repository owner
+    const repo = 'Blog-app'; // Repository name
+
+    export const fetchCommits =async() => {
+      const url = `https://api.github.com/repos/${owner}/${repo}/commits`;
+    
+      try {
+        const response = await fetch(url, {
+          headers: {
+            'Accept': 'application/vnd.github+json', // GitHub's recommended media type
+          },
+        });
+    
+        if (!response.ok) {
+          throw new Error(`Error: ${response.status} ${response.statusText}`);
+        }
+    
+        const commits = await response.json();
+      } catch (error) {
+        if (error instanceof Error) {
+            console.error('Error fetching commits:', error.message);
+        } else {
+            console.error('Error fetching commits:', error);
+        }
+      }
+
+    }
+
 export const fetchAllGithubRepos = async (
   token?: string
 ): Promise<GithubRepository[]> => {
