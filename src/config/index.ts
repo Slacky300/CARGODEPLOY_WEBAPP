@@ -118,6 +118,10 @@ export interface CreateProjectFormValues {
     slug: string;
     token: string;
     commit : string;
+    buildCommand: string;
+    installCommand: string;
+    packageManagerInstall: string;
+    packageManager: string;
     envVars: { key: string; value: string }[];
 }
 

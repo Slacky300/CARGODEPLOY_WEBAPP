@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { Trash, User, Github } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -8,12 +8,12 @@ import SlugInput from "@/components/SlugInput";
 import { CreateProjectFormValues } from "@/config/index";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { GithubRepository } from "@/lib/utils";
+import { fetchCommits, GithubRepository } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import CommitChoice from "./CommitChoice";
 
 interface RepoToDisplay {
-  repo: GithubRepository | null;
+  repo: GithubRepository;
   setSelectedRepo: (repo: GithubRepository) => void;
   setNextSection: (next: boolean) => void;
   token?: string;
@@ -23,12 +23,12 @@ const CreateProjectForm = ({
   setNextSection,
   token,
 }: RepoToDisplay) => {
- 
+
   const [slug, setSlug] = useState("");
-  const [showModal , setShowModal] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const [slugExists, setSlugExists] = useState(false);
   const router = useRouter();
-  const {toast} = useToast();
+  const { toast } = useToast();
   const {
     register,
     handleSubmit,
@@ -41,6 +41,10 @@ const CreateProjectForm = ({
       rootDir: "",
       slug: "",
       commit: "",
+      buildCommand: "npm run build",
+      installCommand: "npm install",
+      packageManagerInstall: "npm",
+      packageManager: "npm",
       token: token,
       envVars: [{ key: "", value: "" }],
     },
@@ -71,7 +75,7 @@ const CreateProjectForm = ({
     updatedAt: Date;
     isDeployed: boolean;
   };
-  
+
   type NewDeployment = {
     status: "PENDING" | "SUCCESS" | "FAILED";
     id: string;
@@ -80,7 +84,7 @@ const CreateProjectForm = ({
     projectId: string;
     containerId: string | null;
   };
-  
+
   type ApiResponse = {
     status: number;
     success: boolean;
@@ -89,11 +93,11 @@ const CreateProjectForm = ({
       newDeployment: NewDeployment;
     };
   };
-  
+
   type ApiError = {
     message?: string;
   };
-  
+
   const createProject = async (
     data: CreateProjectFormValues
   ): Promise<ApiResponse> => {
@@ -112,14 +116,14 @@ const CreateProjectForm = ({
         token: data.token,
       }),
     });
-  
+
     if (!response.ok) {
       throw new Error("Failed to create project");
     }
-  
+
     return response.json();
   };
-  
+
   const queryClient = useQueryClient();
   const mutation = useMutation<ApiResponse, ApiError, CreateProjectFormValues>({
     mutationFn: createProject,
@@ -132,7 +136,7 @@ const CreateProjectForm = ({
       router.push(`/dashboard/deployments/view/${data.data.newDeployment.id}`);
     },
     onError: (error) => {
-     
+
       toast({
         title: "Failed to create project",
         description: error.message || "An error occurred",
@@ -140,7 +144,7 @@ const CreateProjectForm = ({
       });
     },
   });
-  
+
   const onSubmit = (data: CreateProjectFormValues) => {
     if (slugExists) {
       toast({
@@ -152,19 +156,33 @@ const CreateProjectForm = ({
     }
     mutation.mutate(data);
   };
-  
+
   const handleOnClick = () => {
     setShowModal(true);
   }
-  const [ getCommit, setGetCommit ] = useState<{ sha: string } | null>(null);
-  const getCommitData = (selectedCommit: any) => {
-    setGetCommit(selectedCommit);
+  const [getCommit, setGetCommit] = useState<{ sha: string, commit: { message: string, author: { name: string } } } | null>(null);
+  const getCommitData = (selectedCommit: { sha: string, commit: { message: string, author: { name: string } } }) => {
+    setGetCommit({
+      sha: selectedCommit.sha,
+      commit: {
+        message: selectedCommit.commit.message,
+        author: { name: selectedCommit.commit.author.name }
+      }
+    });
     setShowModal(false);
   }
 
-  const cancelHandler = () => {
-      setShowModal(false);
-  }
+  useEffect(() => {
+    const setLatestCommit = async () => {
+      const data = await fetchCommits(repo.owner.login, repo.name, { isPrivate: repo.private, token });
+      setGetCommit(data[0]);
+      branches && branches[0] && register("branch", {
+        value: ["main", "master"].includes(branches[0].name) ? branches[0].name : branches[0].name
+      });
+    };
+    setLatestCommit();
+  }, []);
+
   return (
     <div className="flex flex-col md:flex-row bg-gray-100 text-black p-8 rounded-lg max-w-6xl shadow-md gap-6">
       {/* Left Section - Repository Details */}
@@ -220,7 +238,7 @@ const CreateProjectForm = ({
             {errors.name && <p className="text-red-600">{errors.name.message}</p>}
           </div>
 
-          <SlugInput slug={slug} setSlug={setSlug} register={register}  setSlugExists={setSlugExists} slugExists={slugExists}/>
+          <SlugInput slug={slug} setSlug={setSlug} register={register} setSlugExists={setSlugExists} slugExists={slugExists} />
 
           <div>
             <label className="block text-sm font-medium mb-2" htmlFor="branch">
@@ -252,13 +270,16 @@ const CreateProjectForm = ({
             <input
               id="commit"
               {...register("commit", { required: "Commit is required" })}
-              placeholder="Enter commit hash"
-              className="w-full px-4 py-2 rounded-md bg-gray-200 text-black border border-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500"
-              value={getCommit ? getCommit.sha : ""}
+              placeholder={getCommit ? `${getCommit.sha.slice(0, 6)} ${getCommit.commit.message.slice(0, 20)}...` : "Select a commit"}
+              disabled
+              className="w-full px-4 py-2 rounded-md bg-gray-100 text-gray-800 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-not-allowed"
+              value={getCommit ? `${getCommit.sha.slice(0, 6)} | ${getCommit.commit.message.slice(0, 20)}...` : ""}
             />
+
             {errors.commit && <p className="text-red-600">{errors.commit.message}</p>}
             <Button
               variant="ghost"
+              type="button"
               className="text-sm text-blue-600 hover:underline"
               onClick={handleOnClick}
             >
@@ -278,6 +299,77 @@ const CreateProjectForm = ({
             />
             {errors.rootDir && <p className="text-red-600">{errors.rootDir.message}</p>}
           </div>
+
+          <div className="w-full flex items-center space-x-4">
+            {/* Package Manager Dropdown */}
+            <div className="w-1/4">
+              <label className="block text-sm font-medium mb-2">Package Manager</label>
+              <select
+                {...register("packageManager", { required: "Package manager is required" })}
+                className="w-full px-2 py-2 rounded-md bg-gray-200 text-black border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Select</option>
+                <option value="npm">npm</option>
+                <option value="yarn">yarn</option>
+                <option value="pnpm">pnpm</option>
+              </select>
+              {errors.packageManager && (
+                <p className="text-red-600 mt-1">{errors.packageManager.message}</p>
+              )}
+            </div>
+
+            {/* Build Command Input */}
+            <div className="flex-1">
+              <label className="block text-sm font-medium mb-2">Build Command</label>
+              <input
+                {...register("buildCommand", { required: "Build command is required" })}
+                placeholder="e.g., run build"
+                className="w-full px-4 py-2 rounded-md bg-gray-200 text-black border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              {errors.buildCommand && (
+                <p className="text-red-600 mt-1">{errors.buildCommand.message}</p>
+              )}
+              <p className="text-sm text-gray-600 mt-1">
+                Specify the build command. Example: <code>run build</code>.
+              </p>
+            </div>
+          </div>
+
+          <div className="w-full flex items-center space-x-4 mt-4">
+            {/* Package Manager Dropdown */}
+            <div className="w-1/4">
+              <label className="block text-sm font-medium mb-2">Package Manager</label>
+              <select
+                {...register("packageManagerInstall", { required: "Package manager is required" })}
+                className="w-full px-2 py-2 rounded-md bg-gray-200 text-black border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Select</option>
+                <option value="npm">npm</option>
+                <option value="yarn">yarn</option>
+                <option value="pnpm">pnpm</option>
+              </select>
+              {errors.packageManagerInstall && (
+                <p className="text-red-600 mt-1">{errors.packageManagerInstall.message}</p>
+              )}
+            </div>
+
+            {/* Install Command Input */}
+            <div className="flex-1">
+              <label className="block text-sm font-medium mb-2">Install Command</label>
+              <input
+                {...register("installCommand", { required: "Install command is required" })}
+                placeholder="e.g., install"
+                className="w-full px-4 py-2 rounded-md bg-gray-200 text-black border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              {errors.installCommand && (
+                <p className="text-red-600 mt-1">{errors.installCommand.message}</p>
+              )}
+              <p className="text-sm text-gray-600 mt-1">
+                Specify the install command. Example: <code>install</code>.
+              </p>
+            </div>
+          </div>
+
 
           <div className="w-full ">
             <label className="block text-sm font-medium mb-4">Environment Variables</label>
@@ -317,21 +409,21 @@ const CreateProjectForm = ({
               disabled={mutation.isPending}
               className="w-full px-4 py-2 bg-gray-200 text-black rounded-md font-medium hover:bg-gray-700 hover:text-white transition"
             >
-              {mutation.isPending ? 
-              <>
-              <div className="loader border-t-transparent border-4 border-gray-500 rounded-full w-6 h-6 animate-spin"></div>
-              Creating Project...
-              </> : 
-              <>
-              Create Project
-              </>}
+              {mutation.isPending ?
+                <>
+                  <div className="loader border-t-transparent border-4 border-gray-500 rounded-full w-6 h-6 animate-spin"></div>
+                  Creating Project...
+                </> :
+                <>
+                  Create Project
+                </>}
             </button>
           </div>
         </form>
-        
+
       </div>
       {
-        showModal && <CommitChoice token={token ? String(token) : ''} repo = {repo} onCommitSubmit = {getCommitData} onClose = {()=> setShowModal(false)} />
+        showModal && <CommitChoice token={token ? String(token) : ''} repo={repo} onCommitSubmit={getCommitData} onClose={() => setShowModal(false)} />
       }
     </div>
   );
