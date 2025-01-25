@@ -1,5 +1,5 @@
 "use client";
-import React, { use, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { Trash, User, Github } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -39,12 +39,11 @@ const CreateProjectForm = ({
       name: "",
       branch: "",
       rootDir: "",
+      outDir: "",
       slug: "",
       commit: "",
       buildCommand: "npm run build",
       installCommand: "npm install",
-      packageManagerInstall: "npm",
-      packageManager: "npm",
       token: token,
       envVars: [{ key: "", value: "" }],
     },
@@ -176,9 +175,11 @@ const CreateProjectForm = ({
     const setLatestCommit = async () => {
       const data = await fetchCommits(repo.owner.login, repo.name, { isPrivate: repo.private, token });
       setGetCommit(data[0]);
-      branches && branches[0] && register("branch", {
-        value: ["main", "master"].includes(branches[0].name) ? branches[0].name : branches[0].name
-      });
+      if (branches && branches[0]) {
+        register("branch", {
+          value: ["main", "master"].includes(branches[0].name) ? branches[0].name : branches[0].name,
+        });
+      }      
     };
     setLatestCommit();
   }, []);
@@ -289,7 +290,7 @@ const CreateProjectForm = ({
 
           <div>
             <label className="block text-sm font-medium mb-2" htmlFor="rootDir">
-              Root Folder
+              Source Code Folder Path
             </label>
             <input
               id="rootDir"
@@ -301,26 +302,10 @@ const CreateProjectForm = ({
           </div>
 
           <div className="w-full flex items-center space-x-4">
-            {/* Package Manager Dropdown */}
-            <div className="w-1/4">
-              <label className="block text-sm font-medium mb-2">Package Manager</label>
-              <select
-                {...register("packageManager", { required: "Package manager is required" })}
-                className="w-full px-2 py-2 rounded-md bg-gray-200 text-black border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">Select</option>
-                <option value="npm">npm</option>
-                <option value="yarn">yarn</option>
-                <option value="pnpm">pnpm</option>
-              </select>
-              {errors.packageManager && (
-                <p className="text-red-600 mt-1">{errors.packageManager.message}</p>
-              )}
-            </div>
 
             {/* Build Command Input */}
             <div className="flex-1">
-              <label className="block text-sm font-medium mb-2">Build Command</label>
+              <label className="block text-sm font-medium">Build Command</label>
               <input
                 {...register("buildCommand", { required: "Build command is required" })}
                 placeholder="e.g., run build"
@@ -330,32 +315,16 @@ const CreateProjectForm = ({
                 <p className="text-red-600 mt-1">{errors.buildCommand.message}</p>
               )}
               <p className="text-sm text-gray-600 mt-1">
-                Specify the build command. Example: <code>run build</code>.
+                Specify the build command. Example: <code>npm run build OR yarn build</code>.
               </p>
             </div>
           </div>
 
-          <div className="w-full flex items-center space-x-4 mt-4">
-            {/* Package Manager Dropdown */}
-            <div className="w-1/4">
-              <label className="block text-sm font-medium mb-2">Package Manager</label>
-              <select
-                {...register("packageManagerInstall", { required: "Package manager is required" })}
-                className="w-full px-2 py-2 rounded-md bg-gray-200 text-black border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">Select</option>
-                <option value="npm">npm</option>
-                <option value="yarn">yarn</option>
-                <option value="pnpm">pnpm</option>
-              </select>
-              {errors.packageManagerInstall && (
-                <p className="text-red-600 mt-1">{errors.packageManagerInstall.message}</p>
-              )}
-            </div>
-
+          <div className="w-full flex items-center space-x-4">
+          
             {/* Install Command Input */}
             <div className="flex-1">
-              <label className="block text-sm font-medium mb-2">Install Command</label>
+              <label className="block text-sm font-medium">Install Command</label>
               <input
                 {...register("installCommand", { required: "Install command is required" })}
                 placeholder="e.g., install"
@@ -365,7 +334,7 @@ const CreateProjectForm = ({
                 <p className="text-red-600 mt-1">{errors.installCommand.message}</p>
               )}
               <p className="text-sm text-gray-600 mt-1">
-                Specify the install command. Example: <code>install</code>.
+                Specify the install command. Example: <code>yarn install OR npm install</code>.
               </p>
             </div>
           </div>
