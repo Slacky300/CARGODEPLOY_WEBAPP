@@ -1,7 +1,6 @@
 "use client";
 
 import { fetchCommits, GithubRepository } from "@/lib/utils";
-import { useInView } from "react-intersection-observer";
 import React, { useEffect, useState } from "react";
 
 interface Commit {
@@ -83,6 +82,7 @@ const CommitChoice: React.FC<CommitChoiceProps> = ({ token, repo, onCommitSubmit
         </div>
       </div>
     </div>
+  </div>
   );
 };
 
