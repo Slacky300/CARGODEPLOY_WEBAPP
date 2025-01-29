@@ -21,7 +21,6 @@ interface CommitChoiceProps {
 }
 
 const CommitChoice: React.FC<CommitChoiceProps> = ({ token, repo, onCommitSubmit, onClose }) => {
-  const { ref, inView } = useInView(); // Intersection observer hook
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCommit, setSelectedCommit] = useState<Commit | null>(null);
   const [commitHistory, setCommitHistory] = useState<Commit[]>([]);
@@ -77,7 +76,7 @@ const CommitChoice: React.FC<CommitChoiceProps> = ({ token, repo, onCommitSubmit
           <div className="p-4 rounded-lg flex justify-center space-x-3 mt-8">
             <p className="text-xl">All your commits are above</p>
           </div>
-        </div>
+        )}
         <div className="flex justify-end mt-4 space-x-3">
           <button type="button" className="px-2 py-2 rounded-sm bg-black text-white" onClick={handleCommitSubmit}>Add</button>
           <button type="button" className="p-2 rounded-sm bg-black text-white" onClick={onClose}>Cancel</button>
