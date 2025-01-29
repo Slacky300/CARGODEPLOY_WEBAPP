@@ -17,14 +17,17 @@ interface CommitChoiceProps {
   token: string;
   repo: GithubRepository;
   onCommitSubmit: (commit: Commit) => void;
-    onClose: () => void;
-
+  onClose: () => void;
 }
 
-const CommitChoice: React.FC<CommitChoiceProps> = ({ token, repo , onCommitSubmit , onClose}) => {
+const CommitChoice: React.FC<CommitChoiceProps> = ({ token, repo, onCommitSubmit, onClose }) => {
+  const { ref, inView } = useInView(); // Intersection observer hook
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCommit, setSelectedCommit] = useState<Commit | null>(null);
   const [commitHistory, setCommitHistory] = useState<Commit[]>([]);
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
 
  
 
@@ -40,7 +43,7 @@ const CommitChoice: React.FC<CommitChoiceProps> = ({ token, repo , onCommitSubmi
     if (selectedCommit) {
       onCommitSubmit(selectedCommit);
     }
-  }
+  };
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-75 font-sans">
@@ -74,7 +77,7 @@ const CommitChoice: React.FC<CommitChoiceProps> = ({ token, repo , onCommitSubmi
           <div className="p-4 rounded-lg flex justify-center space-x-3 mt-8">
             <p className="text-xl">All your commits are above</p>
           </div>
-        )}
+        </div>
         <div className="flex justify-end mt-4 space-x-3">
           <button type="button" className="px-2 py-2 rounded-sm bg-black text-white" onClick={handleCommitSubmit}>Add</button>
           <button type="button" className="p-2 rounded-sm bg-black text-white" onClick={onClose}>Cancel</button>
