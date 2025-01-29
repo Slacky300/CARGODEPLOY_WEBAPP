@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 import { fetchCommits, GithubRepository } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import CommitChoice from "./CommitChoice";
+import RootFolderChoice from "./RootFolderChoice";
 
 interface RepoToDisplay {
   repo: GithubRepository;
@@ -26,6 +27,7 @@ const CreateProjectForm = ({
 
   const [slug, setSlug] = useState("");
   const [showModal, setShowModal] = useState(false);
+  const [modalForDir, setModalForDir] = useState(false);
   const [slugExists, setSlugExists] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
@@ -170,6 +172,16 @@ const CreateProjectForm = ({
     });
     setShowModal(false);
   }
+  const [getFolderPath , setGetFolderPath] = useState<{data : String}>({
+
+    data: "."
+  });
+  const getFolderPathData = (data : String) => {
+    setGetFolderPath({
+      data: data
+    }) ;
+    console.log(data)
+  }
 
   useEffect(() => {
     const setLatestCommit = async () => {
@@ -206,7 +218,7 @@ const CreateProjectForm = ({
           <div className="flex items-center space-x-3">
             <User className="text-gray-600 flex-shrink-0" size={20} />
             <p className="text-sm text-gray-700">
-              <strong>Owner:</strong> {repo?.owner.login}
+              <strong>Owner:</strong> {repo?.owner.login} 
             </p>
           </div>
           <div className=" flex items-center space-x-0">
@@ -288,17 +300,20 @@ const CreateProjectForm = ({
             </Button>
           </div>
 
-          <div>
+          <div >
             <label className="block text-sm font-medium mb-2" htmlFor="rootDir">
               Source Code Folder Path
             </label>
-            <input
-              id="rootDir"
-              {...register("rootDir", { required: "Root folder is required" })}
-              placeholder="Enter root folder path"
-              className="w-full px-4 py-2 rounded-md bg-gray-200 text-black border border-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500"
-            />
-            {errors.rootDir && <p className="text-red-600">{errors.rootDir.message}</p>}
+            <div className="flex gap-2">
+              <input
+                id="rootDir"
+                {...register("rootDir", { required: "Root folder is required" })}
+                placeholder="Enter root folder path"
+                className="w-full px-4 py-2 rounded-md bg-gray-200 text-black border border-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500"
+              />
+              {errors.rootDir && <p className="text-red-600">{errors.rootDir.message}</p>}
+              <button type="button" className="px-2 py-2 rounded-sm bg-black text-white" onClick={()=>setModalForDir(true)}>Add</button>
+              </div>
           </div>
 
           <div className="w-full flex items-center space-x-4">
@@ -393,6 +408,9 @@ const CreateProjectForm = ({
       </div>
       {
         showModal && <CommitChoice token={token ? String(token) : ''} repo={repo} onCommitSubmit={getCommitData} onClose={() => setShowModal(false)} />
+      }
+      {
+        modalForDir && <RootFolderChoice repo = {repo} onClosed = {()=>setModalForDir(false)} onSubmit = {getFolderPathData} />
       }
     </div>
   );
