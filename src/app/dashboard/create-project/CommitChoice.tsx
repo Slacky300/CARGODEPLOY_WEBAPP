@@ -1,6 +1,7 @@
 "use client";
 
 import { fetchCommits, GithubRepository } from "@/lib/utils";
+import { useInView } from "react-intersection-observer";
 import React, { useEffect, useState } from "react";
 
 interface Commit {
@@ -70,8 +71,7 @@ const CommitChoice: React.FC<CommitChoiceProps> = ({ token, repo, onCommitSubmit
             <p className="font-bold">{item.sha.slice(0, 10)}</p>
             <p>{item.commit.message}</p>
           </div>
-        ))}
-        </div>
+          ))}
         {commitHistory.length < 4 && (
           <div className="p-4 rounded-lg flex justify-center space-x-3 mt-8">
             <p className="text-xl">All your commits are above</p>

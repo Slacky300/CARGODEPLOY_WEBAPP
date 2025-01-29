@@ -4,6 +4,7 @@ import ListRepositories from './ListRepositories';
 import { currentUser } from '@clerk/nextjs/server';
 import prisma from '@/lib/db';
 import { auth, clerkClient } from '@clerk/nextjs/server';
+import RootFolderChoice from './RootFolderChoice';
 
 
 
@@ -85,7 +86,7 @@ const CreateProject = async () => {
 
     return (
         // <div>
-        //     <CommitChoice token = {token ? String(token) : ''} />
+        //     <RootFolderChoice />
         // </div>
         <DashboardPage title='Create Project' route='/dashboard'>
             <ListRepositories avatar={user?.externalAccounts[0].imageUrl} username={user?.externalAccounts[0].username}
