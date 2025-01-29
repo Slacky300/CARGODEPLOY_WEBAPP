@@ -10,6 +10,7 @@ export const useRepositoryDetails = (owner:string | undefined, repo: string | un
         queryFn: async () => await fetchBranches(owner, repo, token)
     });
 
+
     return {
         branches: branchesQuery.data,
         branchesLoading: branchesQuery.isLoading,
