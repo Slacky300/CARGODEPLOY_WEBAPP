@@ -116,6 +116,7 @@ export const fetchAllGithubRepos = async (
 
     const publicRepos = await fetchGithubRepos();
     const allRepos = [...privateRepos, ...publicRepos];
+    console.log(allRepos)
     return allRepos;
   } catch (e) {
     console.error("Error fetching repositories:", e);

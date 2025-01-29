@@ -41,7 +41,7 @@ const CreateProjectForm = ({
       rootDir: "",
       outDir: "",
       slug: "",
-      commit: "",
+      commit: "hello",
       buildCommand: "npm run build",
       installCommand: "npm install",
       token: token,
@@ -272,7 +272,6 @@ const CreateProjectForm = ({
               id="commit"
               {...register("commit", { required: "Commit is required" })}
               placeholder={getCommit ? `${getCommit.sha.slice(0, 6)} ${getCommit.commit.message.slice(0, 20)}...` : "Select a commit"}
-              disabled
               className="w-full px-4 py-2 rounded-md bg-gray-100 text-gray-800 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-not-allowed"
               value={getCommit ? `${getCommit.sha.slice(0, 6)} | ${getCommit.commit.message.slice(0, 20)}...` : ""}
             />
