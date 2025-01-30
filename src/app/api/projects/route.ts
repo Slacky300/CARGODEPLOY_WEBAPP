@@ -174,10 +174,12 @@ export const POST = async (req: NextRequest) => {
         value: value
     }));
 
-    const webhookHit = await fetch(`${process.env.N8N_WEBHOOK_URL}`, {
+    const webhookHit = await fetch(`${process.env.BACKEND_URL}/jobs/create`, {
         method: "POST",
+        headers:{
+            "Content-Type": "application/json"
+        },
         body: JSON.stringify({
-
             git_url: project.gitHubRepoURL,
             project_id: project.slugIdentifier,
             root_folder: project.rootDir,
