@@ -1,33 +1,36 @@
 "use client";
 import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
-import {CircleArrowDown, CircleChevronRight } from "lucide-react";
+import { CircleArrowDown, CircleChevronRight } from "lucide-react";
 import { GithubRepository } from "@/lib/utils";
 
 interface FolderProps {
-    repo : GithubRepository;
-    onClosed : ()=> void ;
-    onSubmit : (data : String) => void ;
+  repo: GithubRepository;
+  onClosed: () => void;
+  token: string;
+  onSubmit: (data: string) => void;
 }
-interface Folder{
-    folder: any;
-    setPath: Dispatch<SetStateAction<string>>
+
+interface Folder {
+  folder: any;
+  token: string;
+  setPath: Dispatch<SetStateAction<string>>;
+  currentPath: string; // Added this to track full path
 }
-const Folder = ({ folder , setPath}: Folder) => {
+
+const Folder = ({ folder, setPath, token, currentPath }: Folder) => {
   const [open, setOpen] = useState(false);
   const [subfolders, setSubfolders] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const [pathOfFolder, setPathOfFolder] = useState(''); 
-
-
   const fetchSubfolders = async () => {
-    if (subfolders.length > 0 || loading) return; 
+    if (subfolders.length > 0 || loading) return;
     setLoading(true);
 
     try {
       const response = await fetch(folder.url, {
         headers: {
           Accept: "application/vnd.github.v3+json",
+          Authorization: `Bearer ${token}`,
         },
       });
       if (!response.ok) {
@@ -43,28 +46,23 @@ const Folder = ({ folder , setPath}: Folder) => {
     }
   };
 
-  const handleToggle = (name: string) => {
-    console.log(name , "this is name")
-    setPathOfFolder((prev)=> prev+=`/${name}`)
-    setPath(pathOfFolder)
-    console.log(pathOfFolder , "this is the pathoffolder")
-    setOpen(!open);
-    if (!open) fetchSubfolders(); // Fetch subfolders when opening
+  const handleToggle = () => {
+    const newPath = currentPath ? `${currentPath}/${folder.name}` : folder.name;
+    setPath(newPath); // Update full path
+    setOpen((prev) => !prev);
+
+    if (!open) fetchSubfolders();
   };
 
   return (
     <div className="ml-4 text-lg font-sans ">
       <div
-        onClick={()=>handleToggle(folder.name)}
-
-        className="flex items-center space-x-3 p-2 rounded-lg transition-all duration-300"
-        
+        onClick={handleToggle}
+        className="flex items-center space-x-3 p-2 rounded-lg transition-all duration-300 cursor-pointer"
       >
-        <span
-          className="cursor-pointer transition-transform duration-300"
-        >
+        <span className="transition-transform duration-300">
           {open ? (
-            <CircleArrowDown  className="w-5 h-5 text-gray-700" />
+            <CircleArrowDown className="w-5 h-5 text-gray-700" />
           ) : (
             <CircleChevronRight className="w-5 h-5 text-gray-700" />
           )}
@@ -76,7 +74,13 @@ const Folder = ({ folder , setPath}: Folder) => {
         <div className="pl-6">
           {loading && <div className="text-gray-500 text-sm">Loading...</div>}
           {subfolders.map((subfolder: any, index: number) => (
-            <Folder key={index} folder={subfolder} setPath={setPath}/>
+            <Folder
+              key={index}
+              folder={subfolder}
+              setPath={setPath}
+              token={token}
+              currentPath={`${currentPath}/${folder.name}`} // Pass down accumulated path
+            />
           ))}
         </div>
       )}
@@ -84,22 +88,23 @@ const Folder = ({ folder , setPath}: Folder) => {
   );
 };
 
-const FolderExplorer = ({repo , onClosed, onSubmit}: FolderProps ) => {
+const FolderExplorer = ({ repo, onClosed, onSubmit, token }: FolderProps) => {
   const [folders, setFolders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [path,setPath] = useState(".");
+  const [path, setPath] = useState(""); // Empty by default
 
   // Fetch root folders from GitHub API
-  const fetchRootFolders = async (repo : GithubRepository , onClosed : void) => {
-    const owner = `${repo.owner.login}`; // Replace with your GitHub username
-    const repository = `${repo.name}`; // Replace with your repository name
-    console.log(repo.name , "this is repo names")
+  const fetchRootFolders = async () => {
+    const owner = repo.owner.login;
+    const repository = repo.name;
+
     try {
       const response = await fetch(
-        `https://api.github.com/repos/${owner}/${repository}/contents/${path}`,
+        `https://api.github.com/repos/${owner}/${repository}/contents/`,
         {
           headers: {
             Accept: "application/vnd.github.v3+json",
+            Authorization: `Bearer ${token}`,
           },
         }
       );
@@ -110,14 +115,14 @@ const FolderExplorer = ({repo , onClosed, onSubmit}: FolderProps ) => {
       const dirs = data.filter((item: any) => item.type === "dir"); // Only folders
       setFolders(dirs);
     } catch (error) {
-      console.error("Failed to fetch root folders:", error);
+      console.log("Failed to fetch root folders:", error);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchRootFolders(repo);
+    fetchRootFolders();
   }, []);
 
   return (
@@ -128,12 +133,22 @@ const FolderExplorer = ({repo , onClosed, onSubmit}: FolderProps ) => {
           {loading ? (
             <div className="text-gray-500 text-sm">Loading...</div>
           ) : (
-            folders.map((folder, index) => <Folder key={index} folder={folder} setPath={setPath}/>)
+            folders.map((folder, index) => (
+              <Folder key={index} token={token} folder={folder} setPath={setPath} currentPath="" />
+            ))
           )}
         </div>
         <div className="flex justify-between mt-4 space-x-3">
-          <button type="button" className="px-2 py-2 rounded-sm bg-black text-white" onSubmit={() => onSubmit(path)} >Add</button>
-          <button type="button" className="p-2 rounded-sm bg-black text-white" onClick={()=>onClosed()} >Cancel</button>
+          <button
+            type="button"
+            className="px-2 py-2 rounded-sm bg-black text-white"
+            onClick={() => onSubmit(path)} // Pass selected path
+          >
+            Add
+          </button>
+          <button type="button" className="p-2 rounded-sm bg-black text-white" onClick={onClosed}>
+            Cancel
+          </button>
         </div>
       </div>
     </div>

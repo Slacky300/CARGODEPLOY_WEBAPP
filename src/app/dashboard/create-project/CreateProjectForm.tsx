@@ -35,6 +35,7 @@ const CreateProjectForm = ({
     register,
     handleSubmit,
     control,
+    setValue,
     formState: { errors },
   } = useForm<CreateProjectFormValues>({
     defaultValues: {
@@ -43,7 +44,7 @@ const CreateProjectForm = ({
       rootDir: "",
       outDir: "",
       slug: "",
-      commit: "hello",
+      commit: "",
       buildCommand: "npm run build",
       installCommand: "npm install",
       token: token,
@@ -58,8 +59,8 @@ const CreateProjectForm = ({
 
 
   const { branches, branchesLoading } = useRepositoryDetails(
-    repo?.owner.login,
-    repo?.name,
+    repo.owner.login,
+    repo.name,
     token ?? token
   );
 
@@ -119,7 +120,12 @@ const CreateProjectForm = ({
     });
 
     if (!response.ok) {
-      throw new Error("Failed to create project");
+      toast({
+        title: "Failed to create project",
+        description: "An error occurred",
+        color: "bg-red-500",
+      });
+      return response.json();
     }
 
     return response.json();
@@ -147,6 +153,7 @@ const CreateProjectForm = ({
   });
 
   const onSubmit = (data: CreateProjectFormValues) => {
+    console.log("Data", data);
     if (slugExists) {
       toast({
         title: "Slug already exists",
@@ -173,29 +180,42 @@ const CreateProjectForm = ({
     setShowModal(false);
   }
   const [getFolderPath , setGetFolderPath] = useState<{data : String}>({
-
     data: "."
   });
   const getFolderPathData = (data : String) => {
     setGetFolderPath({
       data: data
     }) ;
+    
+
     console.log(data)
   }
 
   useEffect(() => {
     const setLatestCommit = async () => {
-      const data = await fetchCommits(repo.owner.login, repo.name, { isPrivate: repo.private, token });
-      setGetCommit(data[0]);
-      if (branches && branches[0]) {
-        register("branch", {
-          value: ["main", "master"].includes(branches[0].name) ? branches[0].name : branches[0].name,
-        });
-      }      
+      try {
+        const data = await fetchCommits(repo.owner.login, repo.name, { isPrivate: repo.private, token });
+        if (data && data.length > 0) {
+          const latestCommit = data[0];
+          setGetCommit(latestCommit);
+          setValue("commit", latestCommit.sha);
+          
+          
+          if (branches && branches.length > 0) {
+            const defaultBranch = ["main", "master"].includes(branches[0].name) 
+              ? branches[0].name 
+              : branches[0].name;
+              
+            setValue("branch", defaultBranch);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch commits", error);
+      }
     };
+    
     setLatestCommit();
-  }, []);
-
+  }, [repo, token, branches]);
   return (
     <div className="flex flex-col md:flex-row bg-gray-100 text-black p-8 rounded-lg max-w-6xl shadow-md gap-6">
       {/* Left Section - Repository Details */}
@@ -260,6 +280,7 @@ const CreateProjectForm = ({
             <select
               id="branch"
               {...register("branch", { required: "Branch is required" })}
+              defaultValue={branches?.[0]?.name}
               className="w-full px-4 py-2 rounded-md bg-gray-200 text-black border border-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500"
             >
               {branchesLoading ? (
@@ -283,9 +304,10 @@ const CreateProjectForm = ({
             <input
               id="commit"
               {...register("commit", { required: "Commit is required" })}
+              defaultValue={getCommit?.sha}
               placeholder={getCommit ? `${getCommit.sha.slice(0, 6)} ${getCommit.commit.message.slice(0, 20)}...` : "Select a commit"}
               className="w-full px-4 py-2 rounded-md bg-gray-100 text-gray-800 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-not-allowed"
-              value={getCommit ? `${getCommit.sha.slice(0, 6)} | ${getCommit.commit.message.slice(0, 20)}...` : ""}
+              value={getCommit ? `${getCommit.sha}` : ""}
             />
 
             {errors.commit && <p className="text-red-600">{errors.commit.message}</p>}
@@ -307,6 +329,7 @@ const CreateProjectForm = ({
               <input
                 id="rootDir"
                 {...register("rootDir", { required: "Root folder is required" })}
+                defaultValue={"."}
                 placeholder="Enter root folder path"
                 className="w-full px-4 py-2 rounded-md bg-gray-200 text-black border border-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500"
               />
@@ -409,7 +432,7 @@ const CreateProjectForm = ({
         showModal && <CommitChoice token={token ? String(token) : ''} repo={repo} onCommitSubmit={getCommitData} onClose={() => setShowModal(false)} />
       }
       {
-        modalForDir && <RootFolderChoice repo = {repo} onClosed = {()=>setModalForDir(false)} onSubmit = {getFolderPathData} />
+        modalForDir && <RootFolderChoice token={token ? String(token) : ''}  repo = {repo} onClosed = {()=>setModalForDir(false)} onSubmit = {getFolderPathData} />
       }
     </div>
   );

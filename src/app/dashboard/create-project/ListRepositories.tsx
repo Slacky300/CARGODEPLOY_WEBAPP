@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { fetchAllGithubRepos, GithubRepository } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import CreateProjectForm from "./CreateProjectForm";
 
 interface RepoOwner {
@@ -30,6 +30,8 @@ const ListRepositories = ({ avatar, username, token }: RepoOwner) => {
             return repositories;
         },
     });
+
+    useEffect(() => {console.log(`token updated`)}, [token]);
 
 
 

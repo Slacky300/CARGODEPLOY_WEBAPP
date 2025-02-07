@@ -24,9 +24,7 @@ const CommitChoice: React.FC<CommitChoiceProps> = ({ token, repo, onCommitSubmit
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCommit, setSelectedCommit] = useState<Commit | null>(null);
   const [commitHistory, setCommitHistory] = useState<Commit[]>([]);
-  const [page, setPage] = useState(1);
-  const [loading, setLoading] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
+
 
  
 
