@@ -186,9 +186,9 @@ const CreateProjectForm = ({
     setGetFolderPath({
       data: data
     }) ;
-    
 
-    console.log(data)
+    setValue("rootDir", data.toString().slice(1));
+    
   }
 
   useEffect(() => {
@@ -207,6 +207,7 @@ const CreateProjectForm = ({
               : branches[0].name;
               
             setValue("branch", defaultBranch);
+            setValue("rootDir", ".");
           }
         }
       } catch (error) {
@@ -334,7 +335,7 @@ const CreateProjectForm = ({
                 className="w-full px-4 py-2 rounded-md bg-gray-200 text-black border border-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500"
               />
               {errors.rootDir && <p className="text-red-600">{errors.rootDir.message}</p>}
-              <button type="button" className="px-2 py-2 rounded-sm bg-black text-white" onClick={()=>setModalForDir(true)}>Add</button>
+              <button type="button" className="px-2 py-2 rounded-sm bg-black text-white" onClick={()=>setModalForDir(true)}>Choose</button>
               </div>
           </div>
 

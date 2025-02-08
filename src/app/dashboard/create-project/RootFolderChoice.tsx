@@ -14,10 +14,12 @@ interface Folder {
   folder: any;
   token: string;
   setPath: Dispatch<SetStateAction<string>>;
-  currentPath: string; // Added this to track full path
+  currentPath: string;
+  selectedPath: string; // To track selected path globally
+  setSelectedPath: Dispatch<SetStateAction<string>>; // Function to update selection
 }
 
-const Folder = ({ folder, setPath, token, currentPath }: Folder) => {
+const Folder = ({ folder, setPath, token, currentPath, selectedPath, setSelectedPath }: Folder) => {
   const [open, setOpen] = useState(false);
   const [subfolders, setSubfolders] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -48,26 +50,38 @@ const Folder = ({ folder, setPath, token, currentPath }: Folder) => {
 
   const handleToggle = () => {
     const newPath = currentPath ? `${currentPath}/${folder.name}` : folder.name;
-    setPath(newPath); // Update full path
-    setOpen((prev) => !prev);
 
+    if (selectedPath === newPath) {
+      // If clicking the same folder, deselect it
+      setSelectedPath("");
+      setPath(""); // Reset path
+    } else {
+      setSelectedPath(newPath);
+      setPath(newPath); // Update full path
+    }
+
+    setOpen((prev) => !prev);
     if (!open) fetchSubfolders();
   };
 
   return (
-    <div className="ml-4 text-lg font-sans ">
+    <div className="ml-4 text-lg font-sans">
       <div
         onClick={handleToggle}
-        className="flex items-center space-x-3 p-2 rounded-lg transition-all duration-300 cursor-pointer"
+        className={`flex items-center space-x-3 p-2 rounded-lg transition-all duration-300 cursor-pointer ${
+          selectedPath === (currentPath ? `${currentPath}/${folder.name}` : folder.name)
+            ? "bg-black text-white" // Highlight selected folder
+            : "text-gray-900"
+        }`}
       >
         <span className="transition-transform duration-300">
           {open ? (
-            <CircleArrowDown className="w-5 h-5 text-gray-700" />
+            <CircleArrowDown className="w-5 h-5" />
           ) : (
-            <CircleChevronRight className="w-5 h-5 text-gray-700" />
+            <CircleChevronRight className="w-5 h-5" />
           )}
         </span>
-        <span className="font-medium text-gray-900">{folder.name}</span>
+        <span className="font-medium">{folder.name}</span>
       </div>
 
       {open && (
@@ -80,6 +94,8 @@ const Folder = ({ folder, setPath, token, currentPath }: Folder) => {
               setPath={setPath}
               token={token}
               currentPath={`${currentPath}/${folder.name}`} // Pass down accumulated path
+              selectedPath={selectedPath} // Pass the selected path
+              setSelectedPath={setSelectedPath} // Pass the setter function
             />
           ))}
         </div>
@@ -92,6 +108,7 @@ const FolderExplorer = ({ repo, onClosed, onSubmit, token }: FolderProps) => {
   const [folders, setFolders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [path, setPath] = useState(""); // Empty by default
+  const [selectedPath, setSelectedPath] = useState(""); // Track selected folder
 
   // Fetch root folders from GitHub API
   const fetchRootFolders = async () => {
@@ -134,7 +151,15 @@ const FolderExplorer = ({ repo, onClosed, onSubmit, token }: FolderProps) => {
             <div className="text-gray-500 text-sm">Loading...</div>
           ) : (
             folders.map((folder, index) => (
-              <Folder key={index} token={token} folder={folder} setPath={setPath} currentPath="" />
+              <Folder
+                key={index}
+                token={token}
+                folder={folder}
+                setPath={setPath}
+                currentPath=""
+                selectedPath={selectedPath}
+                setSelectedPath={setSelectedPath}
+              />
             ))
           )}
         </div>
@@ -142,7 +167,10 @@ const FolderExplorer = ({ repo, onClosed, onSubmit, token }: FolderProps) => {
           <button
             type="button"
             className="px-2 py-2 rounded-sm bg-black text-white"
-            onClick={() => onSubmit(path)} // Pass selected path
+            onClick={() => {
+              onSubmit(path);
+              onClosed();
+            }} // Pass selected path
           >
             Add
           </button>
