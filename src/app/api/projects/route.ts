@@ -45,10 +45,9 @@ export const POST = async (req: NextRequest) => {
 
     if (!userId) {
         return NextResponse.json({
-            status: 401,
             success: false,
             error: "Unauthorized"
-        });
+        },{status: 401, statusText: "Unauthorized"});
     }
 
     const user = await prisma.user.findUnique({
@@ -57,10 +56,10 @@ export const POST = async (req: NextRequest) => {
 
     if (!user) {
         return NextResponse.json({
-            status: 404,
+            
             success: false,
             error: "User not found"
-        });
+        },{status: 404, statusText: "Not Found"});
     }
 
 
@@ -68,20 +67,20 @@ export const POST = async (req: NextRequest) => {
 
     if (!body) {
         return NextResponse.json({
-            status: 400,
+            
             success: false,
             error: "Please provide body required fields"
-        });
+        },{status: 400 , statusText: "Bad Request"});
     }
 
     const { name, gitHubRepoURL, slugIdentifier, rootDir, envVars, branch, token } = body;
 
     if (!name || !gitHubRepoURL || !slugIdentifier || !rootDir || !branch) {
         return NextResponse.json({
-            status: 400,
+           
             success: false,
             error: "Please provide all required fields"
-        });
+        },{status: 400});
     }
 
     const userProjects = await prisma.project.findMany({
@@ -90,13 +89,18 @@ export const POST = async (req: NextRequest) => {
         }
     });
 
+    console.log("Length of userProjects:", userProjects.length);
+    console.log("User quota limit:", user.quotaLimit);
+
     if(userProjects.length === user.quotaLimit) {
+        console.log("@@@@@@@@@@@@User has reached project limit");
         return NextResponse.json({
-            status: 400,
             success: false,
             error: "You have reached your project limit"
-        });
+        },{status: 400});
     }
+
+    console.log("Creating project with name:", name);
 
     const newName = name + "-" + user.id;
 
@@ -106,10 +110,9 @@ export const POST = async (req: NextRequest) => {
 
     if (doesProjectExist) {
         return NextResponse.json({
-            status: 400,
             success: false,
             error: `Project with slugIdentifier already exists`
-        });
+        },{status: 400});
     }
 
     let project;
@@ -128,10 +131,9 @@ export const POST = async (req: NextRequest) => {
     } catch (error) {
         console.error("Error creating project:", error);
         return NextResponse.json({
-            status: 500,
             success: false,
             error: "Failed to create project"
-        });
+        },{status: 500});
     }
 
     const envIds = [];
@@ -174,10 +176,9 @@ export const POST = async (req: NextRequest) => {
         value: value
     }));
 
-    const webhookHit = await fetch(`${process.env.N8N_WEBHOOK_URL}`, {
+    const webhookHit = await fetch(`${process.env.BACKEND_URL}/jobs/create`, {
         method: "POST",
         body: JSON.stringify({
-
             git_url: project.gitHubRepoURL,
             project_id: project.slugIdentifier,
             root_folder: project.rootDir,
@@ -192,16 +193,14 @@ export const POST = async (req: NextRequest) => {
     if (!webhookHit.ok) {
         console.error("Failed to hit webhook:", webhookHit);
         return NextResponse.json({
-            status: 500,
             success: false,
             error: "Failed to hit webhook"
-        });
+        },{status: 500});
     }
     const webhookResponse = await webhookHit.json();
     console.log("Webhook response:", webhookResponse);
     return NextResponse.json({
-        status: 201,
         success: true,
         data: { updatedProject, newDeployment }
-    });
+    },{status: 201});
 };

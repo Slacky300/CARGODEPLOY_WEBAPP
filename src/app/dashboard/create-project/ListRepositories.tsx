@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { fetchAllGithubRepos, GithubRepository } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import CreateProjectForm from "./CreateProjectForm";
 
 interface RepoOwner {
@@ -15,9 +15,11 @@ interface RepoOwner {
     token?: string;
 }
 
+type SelectedRepo = GithubRepository | null;
+
 const ListRepositories = ({ avatar, username, token }: RepoOwner) => {
     const [search, setSearch] = useState("");
-    const [selectedRepo, setSelectedRepo] = useState<GithubRepository | null>(null);
+    const [selectedRepo, setSelectedRepo] = useState<SelectedRepo>();
     const [nextSection, setNextSection] = useState(false);
 
 
@@ -29,6 +31,8 @@ const ListRepositories = ({ avatar, username, token }: RepoOwner) => {
         },
     });
 
+    useEffect(() => {console.log(`token updated`)}, [token]);
+
 
 
     if (isLoading) {
@@ -39,7 +43,7 @@ const ListRepositories = ({ avatar, username, token }: RepoOwner) => {
         );
     }
 
-  
+
 
     if (isError) {
         return (
@@ -51,7 +55,7 @@ const ListRepositories = ({ avatar, username, token }: RepoOwner) => {
         );
     }
 
-    if(nextSection) {
+    if (nextSection && selectedRepo) {
         return <CreateProjectForm token={token} repo={selectedRepo} setSelectedRepo={setSelectedRepo} setNextSection={setNextSection} />;
     }
 
@@ -84,7 +88,7 @@ const ListRepositories = ({ avatar, username, token }: RepoOwner) => {
             </header>
 
             <main className="flex-grow max-w-4xl min-w-full mx-auto py-4 px-6 space-y-6"
-                style={{ maxHeight: "calc(100vh - 18em)" }} 
+                style={{ maxHeight: "calc(100vh - 18em)" }}
             >
                 <div className="relative">
                     <input
@@ -98,7 +102,7 @@ const ListRepositories = ({ avatar, username, token }: RepoOwner) => {
 
                 <div
                     className="bg-white rounded-lg shadow-md p-6 overflow-y-auto"
-                    style={{ maxHeight: "calc(100vh - 25em)" }} 
+                    style={{ maxHeight: "calc(100vh - 25em)" }}
                 >
                     {filteredRepositories.length > 0 ? (
                         <ul className="divide-y divide-gray-200">
@@ -146,7 +150,7 @@ const ListRepositories = ({ avatar, username, token }: RepoOwner) => {
                 </div>
             </main>
 
-                
+
             <Button
                 onClick={() => setNextSection(true)}
                 className="mx-10 bg-gray-800"

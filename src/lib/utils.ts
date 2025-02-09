@@ -75,6 +75,36 @@ export const fetchPrivateGithubRepos = async (
   }
 };
 
+
+export const fetchCommits = async (owner: string, repo: string, metaData: {isPrivate: boolean, token?: string}) => {
+  const url = `https://api.github.com/repos/${owner}/${repo}/commits`;
+
+  try {
+    const response = await fetch(url, {
+      headers: {
+        'Accept': 'application/vnd.github+json', 
+        'Authorization': metaData.isPrivate && metaData.token ? `Bearer ${metaData.token}` : ''
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error: ${response.status} ${response.statusText}`);
+    }
+    
+    const data = await response.json();
+    return data;
+
+    
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error('Error fetching commits:', error.message);
+    } else {
+      console.error('Error fetching commits:', error);
+    }
+  }
+
+}
+
 export const fetchAllGithubRepos = async (
   token?: string
 ): Promise<GithubRepository[]> => {
@@ -86,6 +116,7 @@ export const fetchAllGithubRepos = async (
 
     const publicRepos = await fetchGithubRepos();
     const allRepos = [...privateRepos, ...publicRepos];
+    console.log(allRepos)
     return allRepos;
   } catch (e) {
     console.error("Error fetching repositories:", e);

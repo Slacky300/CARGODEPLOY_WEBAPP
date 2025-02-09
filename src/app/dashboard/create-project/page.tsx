@@ -6,10 +6,10 @@ import prisma from '@/lib/db';
 import { auth, clerkClient } from '@clerk/nextjs/server';
 
 
+
 const CreateProject = async () => {
 
     const user = await currentUser();
-    console.log("User:", user);
     if (!user) {
         return null;
     }
@@ -78,10 +78,12 @@ const CreateProject = async () => {
             console.log("Existing token:", token);
         }
     }
-    
+
+
 
 
     return (
+        
         <DashboardPage title='Create Project' route='/dashboard'>
             <ListRepositories avatar={user?.externalAccounts[0].imageUrl} username={user?.externalAccounts[0].username}
                 token={token as string | undefined} />
