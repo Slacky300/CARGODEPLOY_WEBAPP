@@ -181,13 +181,9 @@ const CreateProjectForm = ({
     });
     setShowModal(false);
   }
-  const [getFolderPath, setGetFolderPath] = useState<{ data: String }>({
-    data: "."
-  });
-  const getFolderPathData = (data: String) => {
-    setGetFolderPath({
-      data: data
-    });
+  
+  const getFolderPathData = (data: string) => {
+   
 
     setValue("rootDir", data.toString().slice(1));
 

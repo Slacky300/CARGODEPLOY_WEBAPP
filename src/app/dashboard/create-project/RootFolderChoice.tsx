@@ -11,7 +11,7 @@ interface FolderProps {
 }
 
 interface Folder {
-  folder: any;
+  folder: FolderItem;
   token: string;
   setPath: Dispatch<SetStateAction<string>>;
   currentPath: string;
@@ -19,9 +19,16 @@ interface Folder {
   setSelectedPath: Dispatch<SetStateAction<string>>; // Function to update selection
 }
 
+interface FolderItem {
+  name: string;
+  path: string;
+  type: string;
+  url: string;
+}
+
 const Folder = ({ folder, setPath, token, currentPath, selectedPath, setSelectedPath }: Folder) => {
   const [open, setOpen] = useState(false);
-  const [subfolders, setSubfolders] = useState<any[]>([]);
+  const [subfolders, setSubfolders] = useState<FolderItem[]>([]);
   const [loading, setLoading] = useState(false);
 
   const fetchSubfolders = async () => {
@@ -38,8 +45,8 @@ const Folder = ({ folder, setPath, token, currentPath, selectedPath, setSelected
       if (!response.ok) {
         throw new Error(`Error: ${response.statusText}`);
       }
-      const data = await response.json();
-      const dirs = data.filter((item: any) => item.type === "dir"); // Only folders
+      const data: FolderItem[] = await response.json();
+      const dirs = data.filter((item) => item.type === "dir"); // Only folders
       setSubfolders(dirs);
     } catch (error) {
       console.error("Failed to fetch folders:", error);
@@ -87,7 +94,7 @@ const Folder = ({ folder, setPath, token, currentPath, selectedPath, setSelected
       {open && (
         <div className="pl-6">
           {loading && <div className="text-gray-500 text-sm">Loading...</div>}
-          {subfolders.map((subfolder: any, index: number) => (
+          {subfolders.map((subfolder, index) => (
             <Folder
               key={index}
               folder={subfolder}
@@ -105,7 +112,7 @@ const Folder = ({ folder, setPath, token, currentPath, selectedPath, setSelected
 };
 
 const FolderExplorer = ({ repo, onClosed, onSubmit, token }: FolderProps) => {
-  const [folders, setFolders] = useState<any[]>([]);
+  const [folders, setFolders] = useState<FolderItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [path, setPath] = useState(""); // Empty by default
   const [selectedPath, setSelectedPath] = useState(""); // Track selected folder
@@ -128,8 +135,8 @@ const FolderExplorer = ({ repo, onClosed, onSubmit, token }: FolderProps) => {
       if (!response.ok) {
         throw new Error(`Error: ${response.statusText}`);
       }
-      const data = await response.json();
-      const dirs = data.filter((item: any) => item.type === "dir"); // Only folders
+      const data: FolderItem[] = await response.json();
+      const dirs = data.filter((item) => item.type === "dir"); // Only folders
       setFolders(dirs);
     } catch (error) {
       console.log("Failed to fetch root folders:", error);
