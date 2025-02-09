@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { Trash, User, Github } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,7 @@ interface RepoToDisplay {
   setNextSection: (next: boolean) => void;
   token?: string;
 }
+
 const CreateProjectForm = ({
   repo,
   setNextSection,
@@ -29,6 +30,7 @@ const CreateProjectForm = ({
   const [showModal, setShowModal] = useState(false);
   const [modalForDir, setModalForDir] = useState(false);
   const [slugExists, setSlugExists] = useState(false);
+  const [advancedOptionsVisible, setAdvancedOptionsVisible] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
   const {
@@ -56,7 +58,6 @@ const CreateProjectForm = ({
     control,
     name: "envVars",
   });
-
 
   const { branches, branchesLoading } = useRepositoryDetails(
     repo.owner.login,
@@ -93,6 +94,7 @@ const CreateProjectForm = ({
     data: {
       updatedProject: UpdatedProject;
       newDeployment: NewDeployment;
+      message?: string;
     };
   };
 
@@ -118,23 +120,19 @@ const CreateProjectForm = ({
         token: data.token,
       }),
     });
-
+  
     if (!response.ok) {
-      toast({
-        title: "Failed to create project",
-        description: "An error occurred",
-        color: "bg-red-500",
-      });
-      return response.json();
+      const errorData = await response.json(); 
+      throw new Error(errorData.error || `HTTP Error ${response.status}`);
     }
-
+  
     return response.json();
   };
-
+  
   const queryClient = useQueryClient();
   const mutation = useMutation<ApiResponse, ApiError, CreateProjectFormValues>({
     mutationFn: createProject,
-    onSuccess: (data) => {
+    onSuccess: (data: ApiResponse) => {
       toast({
         title: `Project for ${data.data.updatedProject.gitHubRepoURL.split("/")[1].split(".")[0]} created successfully`,
         description: `Deployment is in progress. You will be redirected to the deployment page shortly.`,
@@ -142,23 +140,27 @@ const CreateProjectForm = ({
       queryClient.invalidateQueries({ queryKey: ["projects"] });
       router.push(`/dashboard/deployments/view/${data.data.newDeployment.id}`);
     },
-    onError: (error) => {
-
+    onError: async (error: ApiError) => {
+    
+     
+  
+    
       toast({
         title: "Failed to create project",
-        description: error.message || "An error occurred",
-        color: "bg-red-500",
+        description: error.message,
+        variant: "destructive",
       });
     },
+    
+
   });
 
   const onSubmit = (data: CreateProjectFormValues) => {
-    console.log("Data", data);
     if (slugExists) {
       toast({
         title: "Slug already exists",
         description: "Please enter a different slug",
-        color: "bg-yellow-500",
+        variant: "destructive",
       });
       return;
     }
@@ -179,16 +181,16 @@ const CreateProjectForm = ({
     });
     setShowModal(false);
   }
-  const [getFolderPath , setGetFolderPath] = useState<{data : String}>({
+  const [getFolderPath, setGetFolderPath] = useState<{ data: String }>({
     data: "."
   });
-  const getFolderPathData = (data : String) => {
+  const getFolderPathData = (data: String) => {
     setGetFolderPath({
       data: data
-    }) ;
+    });
 
     setValue("rootDir", data.toString().slice(1));
-    
+
   }
 
   useEffect(() => {
@@ -199,13 +201,13 @@ const CreateProjectForm = ({
           const latestCommit = data[0];
           setGetCommit(latestCommit);
           setValue("commit", latestCommit.sha);
-          
-          
+
+
           if (branches && branches.length > 0) {
-            const defaultBranch = ["main", "master"].includes(branches[0].name) 
-              ? branches[0].name 
+            const defaultBranch = ["main", "master"].includes(branches[0].name)
+              ? branches[0].name
               : branches[0].name;
-              
+
             setValue("branch", defaultBranch);
             setValue("rootDir", ".");
           }
@@ -214,9 +216,24 @@ const CreateProjectForm = ({
         console.error("Failed to fetch commits", error);
       }
     };
-    
+
     setLatestCommit();
   }, [repo, token, branches]);
+
+  const memoizedFields = useMemo(() => fields, [fields]);
+
+  const isValidCommand = (command: string) => {
+    const validCommands = [
+      "npm install",
+      "yarn install",
+      "npm run build",
+      "yarn build",
+      "npm run start",
+      "yarn start"
+    ];
+    return validCommands.includes(command);
+  };
+
   return (
     <div className="flex flex-col md:flex-row bg-gray-100 text-black p-8 rounded-lg max-w-6xl shadow-md gap-6">
       {/* Left Section - Repository Details */}
@@ -239,7 +256,7 @@ const CreateProjectForm = ({
           <div className="flex items-center space-x-3">
             <User className="text-gray-600 flex-shrink-0" size={20} />
             <p className="text-sm text-gray-700">
-              <strong>Owner:</strong> {repo?.owner.login} 
+              <strong>Owner:</strong> {repo?.owner.login}
             </p>
           </div>
           <div className=" flex items-center space-x-0">
@@ -265,7 +282,10 @@ const CreateProjectForm = ({
             </label>
             <input
               id="name"
-              {...register("name", { required: "Project name is required" })}
+              {...register("name", {
+                required: "Project name is required",
+                minLength: { value: 3, message: "Project name must be at least 3 characters long" }
+              })}
               placeholder="Enter project name"
               className="w-full px-4 py-2 rounded-md bg-gray-200 text-black border border-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500"
             />
@@ -274,141 +294,158 @@ const CreateProjectForm = ({
 
           <SlugInput slug={slug} setSlug={setSlug} register={register} setSlugExists={setSlugExists} slugExists={slugExists} />
 
-          <div>
-            <label className="block text-sm font-medium mb-2" htmlFor="branch">
-              Git Branches
-            </label>
-            <select
-              id="branch"
-              {...register("branch", { required: "Branch is required" })}
-              defaultValue={branches?.[0]?.name}
-              className="w-full px-4 py-2 rounded-md bg-gray-200 text-black border border-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500"
-            >
-              {branchesLoading ? (
-                <option>Loading...</option>
-              ) : (
-                branches?.map((branch) => (
-                  <option key={branch.name} value={branch.name}>
-                    {branch.name}
-                  </option>
-                ))
-              )}
-            </select>
-            {errors.branch && <p className="text-red-600">{errors.branch.message}</p>}
-          </div>
+          <button
+            type="button"
+            className="text-blue-600 hover:underline focus:outline-none"
+            onClick={() => setAdvancedOptionsVisible(!advancedOptionsVisible)}
+          >
+            {advancedOptionsVisible ? "Hide Advanced Options" : "Show Advanced Options"}
+          </button>
 
-          {/* Div which Hnadle the Commit Data */}
-          <div>
-            <label className="block text-sm font-medium mb-2" htmlFor="commit">
-              Commit
-            </label>
-            <input
-              id="commit"
-              {...register("commit", { required: "Commit is required" })}
-              defaultValue={getCommit?.sha}
-              placeholder={getCommit ? `${getCommit.sha.slice(0, 6)} ${getCommit.commit.message.slice(0, 20)}...` : "Select a commit"}
-              className="w-full px-4 py-2 rounded-md bg-gray-100 text-gray-800 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-not-allowed"
-              value={getCommit ? `${getCommit.sha}` : ""}
-            />
-
-            {errors.commit && <p className="text-red-600">{errors.commit.message}</p>}
-            <Button
-              variant="ghost"
-              type="button"
-              className="text-sm text-blue-600 hover:underline"
-              onClick={handleOnClick}
-            >
-              Choose Commit
-            </Button>
-          </div>
-
-          <div >
-            <label className="block text-sm font-medium mb-2" htmlFor="rootDir">
-              Source Code Folder Path
-            </label>
-            <div className="flex gap-2">
-              <input
-                id="rootDir"
-                {...register("rootDir", { required: "Root folder is required" })}
-                defaultValue={"."}
-                placeholder="Enter root folder path"
-                className="w-full px-4 py-2 rounded-md bg-gray-200 text-black border border-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500"
-              />
-              {errors.rootDir && <p className="text-red-600">{errors.rootDir.message}</p>}
-              <button type="button" className="px-2 py-2 rounded-sm bg-black text-white" onClick={()=>setModalForDir(true)}>Choose</button>
+          {advancedOptionsVisible && (
+            <>
+              <div>
+                <label className="block text-sm font-medium mb-2" htmlFor="branch">
+                  Git Branches
+                </label>
+                <select
+                  id="branch"
+                  {...register("branch", { required: "Branch is required" })}
+                  className="w-full px-4 py-2 rounded-md bg-gray-200 text-black border border-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500"
+                >
+                  {branchesLoading ? (
+                    <option>Loading...</option>
+                  ) : (
+                    branches?.map((branch) => (
+                      <option key={branch.name} value={branch.name}>
+                        {branch.name}
+                      </option>
+                    ))
+                  )}
+                </select>
+                {errors.branch && <p className="text-red-600">{errors.branch.message}</p>}
               </div>
-          </div>
 
-          <div className="w-full flex items-center space-x-4">
-
-            {/* Build Command Input */}
-            <div className="flex-1">
-              <label className="block text-sm font-medium">Build Command</label>
-              <input
-                {...register("buildCommand", { required: "Build command is required" })}
-                placeholder="e.g., run build"
-                className="w-full px-4 py-2 rounded-md bg-gray-200 text-black border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              {errors.buildCommand && (
-                <p className="text-red-600 mt-1">{errors.buildCommand.message}</p>
-              )}
-              <p className="text-sm text-gray-600 mt-1">
-                Specify the build command. Example: <code>npm run build OR yarn build</code>.
-              </p>
-            </div>
-          </div>
-
-          <div className="w-full flex items-center space-x-4">
-          
-            {/* Install Command Input */}
-            <div className="flex-1">
-              <label className="block text-sm font-medium">Install Command</label>
-              <input
-                {...register("installCommand", { required: "Install command is required" })}
-                placeholder="e.g., install"
-                className="w-full px-4 py-2 rounded-md bg-gray-200 text-black border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              {errors.installCommand && (
-                <p className="text-red-600 mt-1">{errors.installCommand.message}</p>
-              )}
-              <p className="text-sm text-gray-600 mt-1">
-                Specify the install command. Example: <code>yarn install OR npm install</code>.
-              </p>
-            </div>
-          </div>
-
-
-          <div className="w-full ">
-            <label className="block text-sm font-medium mb-4">Environment Variables</label>
-            {fields.map((field, index) => (
-              <div key={field.id} className="flex items-center gap-2 mb-2">
+              {/* Div which Handles the Commit Data */}
+              <div>
+                <label className="block text-sm font-medium mb-2" htmlFor="commit">
+                  Commit
+                </label>
                 <input
-                  {...register(`envVars.${index}.key`)}
-                  placeholder="Key"
-                  className="flex-1 min-w-0 px-4 py-2 rounded-md bg-gray-200 text-black border border-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500"
+                  id="commit"
+                  {...register("commit", { required: "Commit is required" })}
+                  placeholder={getCommit ? `${getCommit.sha.slice(0, 6)} ${getCommit.commit.message.slice(0, 20)}...` : "Select a commit"}
+                  className="w-full px-4 py-2 rounded-md bg-gray-100 text-gray-800 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-not-allowed"
+                  value={getCommit ? `${getCommit.sha}` : ""}
                 />
-                <input
-                  {...register(`envVars.${index}.value`)}
-                  placeholder="Value"
-                  className="flex-1 min-w-0 px-4 py-2 rounded-md bg-gray-200 text-black border border-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500"
-                />
+
+                {errors.commit && <p className="text-red-600">{errors.commit.message}</p>}
+                <Button
+                  variant="ghost"
+                  type="button"
+                  className="text-sm text-blue-600 hover:underline"
+                  onClick={handleOnClick}
+                >
+                  Choose Commit
+                </Button>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2" htmlFor="rootDir">
+                  Source Code Folder Path
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    id="rootDir"
+                    {...register("rootDir", {
+                      required: "Root folder is required",
+                      pattern: { value: /^[a-zA-Z0-9-_/.]+$/, message: "Invalid folder path" }
+                    })}
+                    placeholder="Enter root folder path"
+                    className="w-full px-4 py-2 rounded-md bg-gray-200 text-black border border-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500"
+                  />
+                  {errors.rootDir && <p className="text-red-600">{errors.rootDir.message}</p>}
+                  <button type="button" className="px-2 py-2 rounded-sm bg-black text-white" onClick={() => setModalForDir(true)}>Choose</button>
+                </div>
+              </div>
+
+              <div className="w-full flex items-center space-x-4">
+
+                {/* Build Command Input */}
+                <div className="flex-1">
+                  <label className="block text-sm font-medium">Build Command</label>
+                  <input
+                    {...register("buildCommand", {
+                      required: "Build command is required",
+                      validate: value => isValidCommand(value) || "Invalid build command"
+                    })}
+                    placeholder="e.g., npm run build"
+                    className="w-full px-4 py-2 rounded-md bg-gray-200 text-black border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  {errors.buildCommand && (
+                    <p className="text-red-600 mt-1">{errors.buildCommand.message}</p>
+                  )}
+                  <p className="text-sm text-gray-600 mt-1">
+                    Specify the build command. Example: <code>npm run build OR yarn build</code>.
+                  </p>
+                </div>
+              </div>
+
+              <div className="w-full flex items-center space-x-4">
+
+                {/* Install Command Input */}
+                <div className="flex-1">
+                  <label className="block text-sm font-medium">Install Command</label>
+                  <input
+                    {...register("installCommand", {
+                      required: "Install command is required",
+                      validate: value => isValidCommand(value) || "Invalid install command"
+                    })}
+                    placeholder="e.g., npm install"
+                    className="w-full px-4 py-2 rounded-md bg-gray-200 text-black border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  {errors.installCommand && (
+                    <p className="text-red-600 mt-1">{errors.installCommand.message}</p>
+                  )}
+                  <p className="text-sm text-gray-600 mt-1">
+                    Specify the install command. Example: <code>yarn install OR npm install</code>.
+                  </p>
+                </div>
+              </div>
+
+              <div className="w-full">
+                <label className="block text-sm font-medium mb-4">Environment Variables</label>
+                {memoizedFields.map((field, index) => (
+                  <div key={field.id} className="flex items-center gap-2 mb-2">
+                    <input
+                      {...register(`envVars.${index}.key`, { required: "Key is required" })}
+                      placeholder="Key"
+                      className="flex-1 min-w-0 px-4 py-2 rounded-md bg-gray-200 text-black border border-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500"
+                    />
+                    <input
+                      {...register(`envVars.${index}.value`, { required: "Value is required" })}
+                      placeholder="Value"
+                      className="flex-1 min-w-0 px-4 py-2 rounded-md bg-gray-200 text-black border border-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => remove(index)}
+                      className="px-3 py-2 flex-col bg-gray-800 text-white rounded-md hover:bg-gray-700 transition"
+                    >
+                      <Trash size={18} />
+                    </button>
+                  </div>
+                ))}
                 <button
                   type="button"
-                  onClick={() => remove(index)}
-                  className="px-3 py-2  flex-col bg-gray-800 text-white rounded-md hover:bg-gray-700 transition"
+                  onClick={() => append({ key: "", value: "" })}
+                  className="mt-2 px-4 py-2 bg-gray-200 text-black rounded-md hover:bg-gray-700 hover:text-white transition"
                 >
-                  <Trash size={18} />
+                  Add Variable
                 </button>
               </div>
-            ))}
-            <button
-              type="button"
-              onClick={() => append({ key: "", value: "" })}
-              className="mt-2 px-4 py-2 bg-gray-200 text-black rounded-md hover:bg-gray-700 hover:text-white transition"
-            >
-              Add Variable
-            </button>
-          </div>
+            </>
+          )}
 
           <div>
             <button
@@ -418,8 +455,10 @@ const CreateProjectForm = ({
             >
               {mutation.isPending ?
                 <>
-                  <div className="loader border-t-transparent border-4 border-gray-500 rounded-full w-6 h-6 animate-spin"></div>
-                  Creating Project...
+                  <div className="flex items-center justify-center space-x-2">
+                    <div className="loader border-t-transparent border-4 border-gray-500 rounded-full w-6 h-6 animate-spin"></div>
+                    <span className="mx-2">Creating Project...</span>
+                  </div>
                 </> :
                 <>
                   Create Project
@@ -433,7 +472,7 @@ const CreateProjectForm = ({
         showModal && <CommitChoice token={token ? String(token) : ''} repo={repo} onCommitSubmit={getCommitData} onClose={() => setShowModal(false)} />
       }
       {
-        modalForDir && <RootFolderChoice token={token ? String(token) : ''}  repo = {repo} onClosed = {()=>setModalForDir(false)} onSubmit = {getFolderPathData} />
+        modalForDir && <RootFolderChoice token={token ? String(token) : ''} repo={repo} onClosed={() => setModalForDir(false)} onSubmit={getFolderPathData} />
       }
     </div>
   );
