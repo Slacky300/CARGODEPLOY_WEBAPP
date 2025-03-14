@@ -24,7 +24,7 @@ const ListRepositories = ({ avatar, username, token }: RepoOwner) => {
 
 
     const { data: repositories = [], isLoading, isError } = useQuery<GithubRepository[]>({
-        queryKey: ["repositories"],
+        queryKey: ["repositories", token],
         queryFn: async () => {
             const repositories = await fetchAllGithubRepos(token);
             return repositories;

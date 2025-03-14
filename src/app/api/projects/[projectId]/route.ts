@@ -43,6 +43,20 @@ export const DELETE = async (req: NextRequest,   { params }: { params: Promise<{
             );
         }
 
+        const deployments = await prisma.deployment.findMany({
+            where: { projectId },
+        });
+
+        const deploymentIds = deployments.map((deployment) => deployment.id);
+
+        await prisma.log.deleteMany({
+            where: {
+                deploymentId: { in: deploymentIds },
+            },
+        });
+
+
+
         const result = await prisma.project.delete({
             where: { id: projectId },
         });

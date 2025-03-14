@@ -12,6 +12,7 @@ import { fetchCommits, GithubRepository } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import CommitChoice from "./CommitChoice";
 import RootFolderChoice from "./RootFolderChoice";
+import build from "next/dist/build";
 
 interface RepoToDisplay {
   repo: GithubRepository;
@@ -118,6 +119,11 @@ const CreateProjectForm = ({
         branch: data.branch,
         envVars: data.envVars,
         token: data.token,
+        build : data.buildCommand,
+        install : data.installCommand,
+        commit: data.commit,
+        commitMessage: getCommit ? getCommit.commit.message : "",
+        commitAuthor: getCommit ? getCommit.commit.author.name : "",
       }),
     });
   
@@ -465,10 +471,10 @@ const CreateProjectForm = ({
 
       </div>
       {
-        showModal && <CommitChoice token={token ? String(token) : ''} repo={repo} onCommitSubmit={getCommitData} onClose={() => setShowModal(false)} />
+        showModal && <CommitChoice token={token ? token.toString() : ''} repo={repo} onCommitSubmit={getCommitData} onClose={() => setShowModal(false)} />
       }
       {
-        modalForDir && <RootFolderChoice token={token ? String(token) : ''} repo={repo} onClosed={() => setModalForDir(false)} onSubmit={getFolderPathData} />
+        modalForDir && <RootFolderChoice token={token ? token.toString() : ''} repo={repo} onClosed={() => setModalForDir(false)} onSubmit={getFolderPathData} />
       }
     </div>
   );

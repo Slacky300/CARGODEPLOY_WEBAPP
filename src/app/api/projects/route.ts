@@ -73,9 +73,9 @@ export const POST = async (req: NextRequest) => {
         },{status: 400 , statusText: "Bad Request"});
     }
 
-    const { name, gitHubRepoURL, slugIdentifier, rootDir, envVars, branch, token } = body;
+    const { name, gitHubRepoURL, slugIdentifier, rootDir, envVars, branch, token, build, install, commit, commitMessage, commitAuthor } = body;
 
-    if (!name || !gitHubRepoURL || !slugIdentifier || !rootDir || !branch) {
+    if (!name || !gitHubRepoURL || !slugIdentifier || !rootDir || !branch || !build || !install || !commit) {
         return NextResponse.json({
            
             success: false,
@@ -89,20 +89,17 @@ export const POST = async (req: NextRequest) => {
         }
     });
 
-    console.log("Length of userProjects:", userProjects.length);
-    console.log("User quota limit:", user.quotaLimit);
+    
 
     if(userProjects.length === user.quotaLimit) {
-        console.log("@@@@@@@@@@@@User has reached project limit");
         return NextResponse.json({
             success: false,
             error: "You have reached your project limit"
         },{status: 400});
     }
 
-    console.log("Creating project with name:", name);
 
-    const newName = name + "-" + user.id;
+    const newName = name + "-" + user.id + "-" + userProjects.length;
 
     const doesProjectExist = await prisma.project.findFirst({
         where: { slugIdentifier }
@@ -167,7 +164,10 @@ export const POST = async (req: NextRequest) => {
     const newDeployment = await prisma.deployment.create({
         data: {
             projectId: project.id,
-            status: "PENDING"
+            status: "PENDING",
+            commitId: commit,
+            commitMsg: commitMessage,
+            commitAuthor: commitAuthor
         }
     });
 
@@ -178,6 +178,9 @@ export const POST = async (req: NextRequest) => {
 
     const webhookHit = await fetch(`${process.env.BACKEND_URL}/jobs/create`, {
         method: "POST",
+        headers:{
+            "Content-Type": "application/json"
+        },
         body: JSON.stringify({
             git_url: project.gitHubRepoURL,
             project_id: project.slugIdentifier,
@@ -186,7 +189,10 @@ export const POST = async (req: NextRequest) => {
             name: project.name,
             access_token: token,
             branch: project.branch,
-            deployment_id: newDeployment.id
+            deployment_id: newDeployment.id,
+            build_command: build,
+            install_command: install,
+            commit_sha: commit
         }),
     });
 
