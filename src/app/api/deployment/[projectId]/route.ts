@@ -65,7 +65,10 @@ export const GET = async (req: NextRequest, { params }: { params: Promise<{ proj
             createdAt: deployment.createdAt,
             gitHubRepoURL: project.gitHubRepoURL,
             gitHubRepoName: project.gitHubRepoURL.split("/").at(-1),
-            deploymentStatus: deployment.status
+            deploymentStatus: deployment.status,
+            commitSha: deployment.commitId,
+            commitMsg: deployment.commitMsg,
+            commitAuthor: deployment.commitAuthor
         }))
 
     }

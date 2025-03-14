@@ -75,6 +75,9 @@ model Deployment {
     projectId   String   // Foreign key for the project relationship
     status      DeploymentStatus @default(PENDING)
     containerId String?
+    commitId    String?
+    commitMsg   String?
+    commitAuthor String?
     Logs        Log[]
 
     createdAt DateTime @default(now())

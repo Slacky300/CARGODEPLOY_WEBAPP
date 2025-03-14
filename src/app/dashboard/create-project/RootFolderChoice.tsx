@@ -2,6 +2,7 @@
 import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { CircleArrowDown, CircleChevronRight } from "lucide-react";
 import { GithubRepository } from "@/lib/utils";
+import { toast } from "@/hooks/use-toast";
 
 interface FolderProps {
   repo: GithubRepository;
@@ -117,11 +118,22 @@ const FolderExplorer = ({ repo, onClosed, onSubmit, token }: FolderProps) => {
   const [path, setPath] = useState(""); // Empty by default
   const [selectedPath, setSelectedPath] = useState(""); // Track selected folder
 
+
+
   // Fetch root folders from GitHub API
   const fetchRootFolders = async () => {
     const owner = repo.owner.login;
     const repository = repo.name;
 
+    if(repo.private && token === null) {
+      console.error("Private repository requires a token");
+      toast({
+        title: "Error",
+        description: "Private repository requires a token",
+        variant: "destructive",
+      });
+      return;
+    }
     try {
       const response = await fetch(
         `https://api.github.com/repos/${owner}/${repository}/contents/`,
@@ -136,7 +148,7 @@ const FolderExplorer = ({ repo, onClosed, onSubmit, token }: FolderProps) => {
         throw new Error(`Error: ${response.statusText}`);
       }
       const data: FolderItem[] = await response.json();
-      const dirs = data.filter((item) => item.type === "dir"); // Only folders
+      const dirs = data.filter((item) => item.type === "dir"); 
       setFolders(dirs);
     } catch (error) {
       console.log("Failed to fetch root folders:", error);
