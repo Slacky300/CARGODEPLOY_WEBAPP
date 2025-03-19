@@ -61,6 +61,7 @@ model Project {
     envVars        EnvironmentVariables[]
     branch         String
     token          String?
+    isPrivate      Boolean @default(false)
     isDeployed     Boolean @default(false)
 
     createdAt DateTime @default(now())

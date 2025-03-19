@@ -70,7 +70,7 @@ export const POST = async (req: NextRequest) => {
         },{status: 400, statusText: "Bad Request"});
     }
 
-    const { name, gitHubRepoURL, slugIdentifier, rootDir, envVars, branch, token, build, install, commit, commitMessage, commitAuthor } = body;
+    const { name, gitHubRepoURL, isPrivate, slugIdentifier, rootDir, envVars, branch, token, build, install, commit, commitMessage, commitAuthor } = body;
 
     if (!name || !gitHubRepoURL || !slugIdentifier || !rootDir || !branch || !build || !install || !commit) {
         return NextResponse.json({
@@ -117,7 +117,8 @@ export const POST = async (req: NextRequest) => {
                     rootDir,
                     userId: user.id,
                     branch,
-                    token
+                    token,
+                    isPrivate: isPrivate
                 }
             });
         } catch (error) {

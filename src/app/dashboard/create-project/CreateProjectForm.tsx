@@ -51,6 +51,7 @@ const CreateProjectForm = ({
       buildCommand: "npm run build",
       installCommand: "npm install",
       token: token,
+      isPrivate: repo.private,
       envVars: [{ key: "", value: "" }],
     },
   });
@@ -81,7 +82,7 @@ const CreateProjectForm = ({
   };
 
   type NewDeployment = {
-    status: "PENDING" | "SUCCESS" | "FAILED";
+    status: "PENDING" | "SUCCESS" | "FAILED" | "IN_PROGRESS";
     id: string;
     createdAt: Date;
     updatedAt: Date;
