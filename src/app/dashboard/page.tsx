@@ -19,17 +19,23 @@ const Page = async () => {
     }
   });
 
+
   if (!userClerk) {
     redirect("/welcome");
   }
 
+  const projectsLength = await prisma.project.count({
+    where: {
+      userId: userClerk.id
+    }
+  });
 
 
 
   return (
     <DashboardPage 
     cta={
-        <NewProjectButton />
+        <NewProjectButton projectCount={projectsLength} userQuota={userClerk?.quotaLimit} />
     }
     
     title='Your Projects'>

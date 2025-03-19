@@ -33,6 +33,7 @@ export async function GET(req: NextRequest) {
         );
 
 
+
         return NextResponse.json({
             status: 200,
             token: externalAccount.data[0].token

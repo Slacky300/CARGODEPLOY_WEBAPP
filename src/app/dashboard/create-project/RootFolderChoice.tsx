@@ -8,6 +8,7 @@ interface FolderProps {
   repo: GithubRepository;
   onClosed: () => void;
   token: string;
+  clerkOAuthToken?: string;
   onSubmit: (data: string) => void;
 }
 
@@ -112,7 +113,7 @@ const Folder = ({ folder, setPath, token, currentPath, selectedPath, setSelected
   );
 };
 
-const FolderExplorer = ({ repo, onClosed, onSubmit, token }: FolderProps) => {
+const FolderExplorer = ({ repo, onClosed, onSubmit, token, clerkOAuthToken }: FolderProps) => {
   const [folders, setFolders] = useState<FolderItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [path, setPath] = useState(""); // Empty by default
@@ -140,7 +141,7 @@ const FolderExplorer = ({ repo, onClosed, onSubmit, token }: FolderProps) => {
         {
           headers: {
             Accept: "application/vnd.github.v3+json",
-            Authorization: `Bearer ${token}`,
+            Authorization: repo.private ? `Bearer ${token}` : `Bearer ${clerkOAuthToken}`,
           },
         }
       );
