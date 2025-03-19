@@ -77,6 +77,8 @@ model Deployment {
     containerId String?
     commitId    String?
     commitMsg   String?
+    buildCommand String?
+    installCommand String?
     commitAuthor String?
     Logs        Log[]
 

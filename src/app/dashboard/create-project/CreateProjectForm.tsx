@@ -12,7 +12,6 @@ import { fetchCommits, GithubRepository } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import CommitChoice from "./CommitChoice";
 import RootFolderChoice from "./RootFolderChoice";
-import build from "next/dist/build";
 
 interface RepoToDisplay {
   repo: GithubRepository;
@@ -33,6 +32,7 @@ const CreateProjectForm = ({
   const [slugExists, setSlugExists] = useState(false);
   const [advancedOptionsVisible, setAdvancedOptionsVisible] = useState(false);
   const router = useRouter();
+  const [clerkOauth, setClerkOauth] = useState<string>("");  
   const { toast } = useToast();
   const {
     register,
@@ -221,6 +221,25 @@ const CreateProjectForm = ({
 
     setLatestCommit();
   }, [repo, token, branches]);
+
+  useEffect(() => {
+    const fetachOauthToken = async () => {
+      try{
+        const res = await fetch(`/api/external/oauth-token/github`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': `${process.env.API_KEY}`
+          }
+        });
+        const data = await res.json();
+        setClerkOauth(data.token);
+      }catch(e){
+        console.error(e);
+      }
+    };
+    fetachOauthToken();
+  });
 
   const memoizedFields = useMemo(() => fields, [fields]);
 
@@ -474,7 +493,7 @@ const CreateProjectForm = ({
         showModal && <CommitChoice token={token ? token.toString() : ''} repo={repo} onCommitSubmit={getCommitData} onClose={() => setShowModal(false)} />
       }
       {
-        modalForDir && <RootFolderChoice token={token ? token.toString() : ''} repo={repo} onClosed={() => setModalForDir(false)} onSubmit={getFolderPathData} />
+        modalForDir && <RootFolderChoice token={token ? token.toString() : ''} clerkOAuthToken={clerkOauth} repo={repo} onClosed={() => setModalForDir(false)} onSubmit={getFolderPathData} />
       }
     </div>
   );

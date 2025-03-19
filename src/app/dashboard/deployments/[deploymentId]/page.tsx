@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import DashboardPage from "@/components/DashboardPage";
 import { RefreshCcw, FileCode2 } from "lucide-react";
 import PageLoader from "@/components/PageLoader";
+import { Button } from "@/components/ui/button";
 
 interface Deployment {
   deploymentId: string;
@@ -17,8 +18,20 @@ interface Deployment {
   commitAuthor?: string;
 }
 
+interface Project {
+  id: string;
+  name: string;
+  gitHubRepoURL: string;
+  slugIdentifier: string;
+  rootDir: string;
+  branch: string;
+  token: string;
+  userId: string;
+}
+
 interface Deployments {
   projectName: string;
+  project: Project;
   deployments: Deployment[];
 }
 
@@ -76,7 +89,20 @@ const RespectiveDeployment = () => {
             <RefreshCcw size={18} />
             Refresh
           </button>
+
+          <Button
+            variant="outline"
+            type="button"
+            className="text-sm"
+          // onClick={handleOnClick}
+          >
+            Choose Commit
+          </Button>
         </div>
+
+        {/* {<CommitChoice />} */}
+
+       
 
         {/* Deployments List */}
         <ul className="w-full space-y-4">
@@ -96,13 +122,12 @@ const RespectiveDeployment = () => {
                 </h2>
 
                 <span
-                  className={`text-sm px-3 py-1 rounded-full font-medium ${
-                    deployment.deploymentStatus === "SUCCESS"
+                  className={`text-sm px-3 py-1 rounded-full font-medium ${deployment.deploymentStatus === "SUCCESS"
                       ? "bg-green-500 text-white"
                       : deployment.deploymentStatus === "FAILED"
-                      ? "bg-red-500 text-white"
-                      : "bg-yellow-300 text-yellow-800"
-                  }`}
+                        ? "bg-red-500 text-white"
+                        : "bg-yellow-300 text-yellow-800"
+                    }`}
                 >
                   {deployment.deploymentStatus.toUpperCase()}
                 </span>
@@ -117,7 +142,7 @@ const RespectiveDeployment = () => {
 
                 {deployment.commitMsg && (
                   <div className="text-gray-600 italic truncate max-w-xs">
-                    "{deployment.commitMsg}"
+                    {deployment.commitMsg}
                   </div>
                 )}
 

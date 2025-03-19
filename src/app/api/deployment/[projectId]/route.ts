@@ -69,7 +69,8 @@ export const GET = async (req: NextRequest, { params }: { params: Promise<{ proj
             commitSha: deployment.commitId,
             commitMsg: deployment.commitMsg,
             commitAuthor: deployment.commitAuthor
-        }))
+        })),
+        project
 
     }
 

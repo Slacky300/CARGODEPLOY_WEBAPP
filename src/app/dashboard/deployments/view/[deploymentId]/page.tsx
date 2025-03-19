@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import DashboardPage from "@/components/DashboardPage";
 import DeploymentRepo from "../DeploymentRepo";
 import { useParams } from "next/navigation";
@@ -13,8 +13,8 @@ const ViewDeployment = () => {
   const [logs, setLogs] = useState<string[]>([]);
   const { socket } = useSocketContext();
   const [status, setStatus] = useState<string>("PENDING");
-
   const [doesLogExistInDB, setDoesLogExistInDB] = useState<boolean>(false);
+  const terminalRef = useRef<HTMLDivElement>(null);
 
   const { data, isLoading, isError } = useQuery<Deployment>({
     queryKey: ["deployment", deploymentId],
@@ -34,7 +34,7 @@ const ViewDeployment = () => {
       if (!response.ok) return null;
       const data = await response.json();
       setDoesLogExistInDB(true);
-      if(logsData){}
+      if (logsData) {}
       setLogs(data.logs.split("\n"));
       return data.logs;
     },
@@ -45,22 +45,29 @@ const ViewDeployment = () => {
     if (!socket || !deploymentId) return;
 
     socket.emit("join", deploymentId);
-  
-
+    
     socket.on("logUpdate", (payload: { deploymentId: string; logs: string }) => {
       if (payload?.logs) {
         if (payload.logs === "SUCCESS" || payload.logs === "FAILED") {
           setStatus(payload.logs);
           return;
         }
-        setLogs((prevLogs) => [...prevLogs, payload.logs]);
+        // Add new logs at the beginning of the array
+        setLogs((prevLogs) => [payload.logs, ...prevLogs]);
       }
     });
 
     return () => {
       socket.off("logUpdate");
     };
-  }, [socket, deploymentId]);
+  }, [socket, deploymentId, doesLogExistInDB]);
+
+  // Scroll to top when new logs are added
+  useEffect(() => {
+    if (terminalRef.current) {
+      terminalRef.current.scrollTop = 0;
+    }
+  }, [logs]);
 
   if (isLoading) {
     return (
@@ -85,8 +92,12 @@ const ViewDeployment = () => {
     >
       <div className="flex flex-col w-full h-full p-4 gap-6">
         <DeploymentRepo deploymentInfo={data} status={status} doesLogExistInDB />
+        
+        {/* Full-width terminal with logs appearing from top */}
         <div
+          ref={terminalRef}
           className="
+            w-full
             bg-black
             text-green-500
             rounded-md
@@ -111,7 +122,8 @@ const ViewDeployment = () => {
         {/* Additional Note */}
         <div className="mt-6 p-4 bg-yellow-100 text-yellow-700 rounded-md text-sm">
           <p>
-          Please note: Logs may not be available immediately. Rest assured, you will be notified via email once your deployment has either failed or succeeded.          </p>
+            Please note: Logs may not be available immediately. Rest assured, you will be notified via email once your deployment has either failed or succeeded.
+          </p>
         </div>
       </div>
     </DashboardPage>
