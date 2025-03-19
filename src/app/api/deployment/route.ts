@@ -13,7 +13,7 @@ export const POST = async (req: NextRequest) => {
         });
     }
    
-    const {projectId, commitId, commitMsg} = await req.json();
+    const {projectId} = await req.json();
 
 
     const user = await prisma.user.findUnique({

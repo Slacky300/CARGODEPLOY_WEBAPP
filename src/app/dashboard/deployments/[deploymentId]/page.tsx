@@ -6,7 +6,6 @@ import DashboardPage from "@/components/DashboardPage";
 import { RefreshCcw, FileCode2 } from "lucide-react";
 import PageLoader from "@/components/PageLoader";
 import { Button } from "@/components/ui/button";
-import CommitChoice from "../../create-project/CommitChoice";
 
 interface Deployment {
   deploymentId: string;
@@ -39,7 +38,6 @@ interface Deployments {
 const RespectiveDeployment = () => {
   const { deploymentId } = useParams();
   const [deployments, setDeployments] = useState<Deployments | null>(null);
-  const [showCommitModal, setShowCommitModal] = useState(false);
   const router = useRouter();
 
   const { isLoading, isError, error, refetch } = useQuery({
@@ -144,7 +142,7 @@ const RespectiveDeployment = () => {
 
                 {deployment.commitMsg && (
                   <div className="text-gray-600 italic truncate max-w-xs">
-                    "{deployment.commitMsg}"
+                    {deployment.commitMsg}
                   </div>
                 )}
 

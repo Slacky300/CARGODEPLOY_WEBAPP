@@ -181,7 +181,10 @@ export const POST = async (req: NextRequest) => {
             console.error("Error preparing webhook data:", error);
             throw error; // This will trigger transaction rollback
         }
-    }).then(async (transactionResult: any) => {
+    }).then(async (transactionResult) => {
+        if (transactionResult instanceof NextResponse) {
+            return transactionResult;
+        }
         // Transaction succeeded, now make the webhook call
         if (transactionResult instanceof NextResponse) {
             return transactionResult;

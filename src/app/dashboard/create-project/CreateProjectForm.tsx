@@ -12,7 +12,6 @@ import { fetchCommits, GithubRepository } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import CommitChoice from "./CommitChoice";
 import RootFolderChoice from "./RootFolderChoice";
-import { useUser } from "@clerk/nextjs";
 
 interface RepoToDisplay {
   repo: GithubRepository;
