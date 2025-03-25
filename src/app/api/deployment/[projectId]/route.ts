@@ -55,6 +55,9 @@ export const GET = async (req: NextRequest, { params }: { params: Promise<{ proj
     const deployments = await prisma.deployment.findMany({
         where: {
             projectId: projectId
+        },
+        orderBy: {
+            createdAt: 'desc'
         }
     });
 

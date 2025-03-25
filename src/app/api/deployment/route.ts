@@ -87,6 +87,7 @@ export const GET = async (req: NextRequest) => {
         }
     });
 
+
   
 
     if (!deployment) {
@@ -118,6 +119,8 @@ export const GET = async (req: NextRequest) => {
         deploymentStatus: deployment.status,
         projectId: project.id
     }
+
+    
 
     return NextResponse.json({
         status: 200,

@@ -116,6 +116,7 @@ const RespectiveDeployment = () => {
             repoOwner={deployments?.githubRepoOwner || ""}
             repoName={deployments?.project.gitHubRepoURL.split("/").at(-1)?.split('.')[0] || ""}
             token={token as string}
+            deploymentId={deploymentId as string}
             isPrivate={deployments?.isPrivate || false}
             onCommitSubmit={(commit) => console.log(commit)}
           />

@@ -22,6 +22,7 @@ interface Project {
     createdAt: Date;
     updatedAt: Date;
     isDeployed: boolean;
+    deploymentSuccessful: "PENDING" | "IN_PROGRESS" | "SUCCESS" | "FAILED";
 }
 
 export const DashboardPageContent = () => {
@@ -150,7 +151,7 @@ export const DashboardPageContent = () => {
                                     View Live
                                     <ExternalLink className="size-4" />
                                 </Link>
-                                ): project.createdAt !== project.updatedAt ? (
+                                ): project.deploymentSuccessful === "FAILED" ? (
                                     <>
                                     <span className="text-sm text-white bg-gray-600 rounded-sm p-4">RETRY</span>
                                     </>

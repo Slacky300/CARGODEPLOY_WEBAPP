@@ -19,6 +19,13 @@ enum DeploymentStatus {
     FAILED
 }
 
+enum ProjectDeploymentStatus {
+    PENDING
+    IN_PROGRESS
+    SUCCESS
+    FAILED
+}
+
 model User {
     id         String  @id @default(cuid())
     externalId String? @unique
@@ -63,6 +70,9 @@ model Project {
     token          String?
     isPrivate      Boolean @default(false)
     isDeployed     Boolean @default(false)
+    buildCommand   String? @default("npm run build")
+    installCommand String? @default("npm install")
+    deploymentSuccessful ProjectDeploymentStatus @default(PENDING)
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
