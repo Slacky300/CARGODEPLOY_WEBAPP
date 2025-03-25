@@ -6,6 +6,8 @@ import DashboardPage from "@/components/DashboardPage";
 import { RefreshCcw, FileCode2 } from "lucide-react";
 import PageLoader from "@/components/PageLoader";
 import { Button } from "@/components/ui/button";
+import ParticularCommitDeploy from "./ParticularCommitDeploy";
+import { useUserGithubToken } from "@/hooks/use-user-details";
 
 interface Deployment {
   deploymentId: string;
@@ -32,13 +34,17 @@ interface Project {
 interface Deployments {
   projectName: string;
   project: Project;
+  githubRepoOwner: string;
+  isPrivate: boolean;
   deployments: Deployment[];
 }
 
 const RespectiveDeployment = () => {
   const { deploymentId } = useParams();
   const [deployments, setDeployments] = useState<Deployments | null>(null);
+  const [showModal, setShowModal] = useState(false);
   const router = useRouter();
+  const { token } = useUserGithubToken();
 
   const { isLoading, isError, error, refetch } = useQuery({
     queryKey: ["deployments", deploymentId],
@@ -55,6 +61,10 @@ const RespectiveDeployment = () => {
       return data;
     },
   });
+
+  const handleOnClick = () => {
+    setShowModal(true);
+  }
 
   // Loading state
   if (isLoading) {
@@ -81,7 +91,7 @@ const RespectiveDeployment = () => {
       <div className="flex flex-col gap-6 p-4">
         {/* Header Section */}
         <div className="flex items-center justify-between mb-4">
-          <h1 className="text-2xl font-bold tracking-wide text-black">Deployments</h1>
+          <h1 className="text-2xl font-bold tracking-wide text-black">Deployments {deployments?.githubRepoOwner}</h1>
           <button
             onClick={() => refetch()}
             className="flex items-center gap-2 bg-gray-800 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors"
@@ -94,15 +104,25 @@ const RespectiveDeployment = () => {
             variant="outline"
             type="button"
             className="text-sm"
-          // onClick={handleOnClick}
+            onClick={handleOnClick}
           >
             Choose Commit
           </Button>
         </div>
 
-        {/* {<CommitChoice />} */}
+        {showModal && (
+          <ParticularCommitDeploy
+            onClose={() => setShowModal(false)}
+            repoOwner={deployments?.githubRepoOwner || ""}
+            repoName={deployments?.project.gitHubRepoURL.split("/").at(-1)?.split('.')[0] || ""}
+            token={token as string}
+            deploymentId={deploymentId as string}
+            isPrivate={deployments?.isPrivate || false}
+            onCommitSubmit={(commit) => console.log(commit)}
+          />
+        )}
 
-       
+
 
         {/* Deployments List */}
         <ul className="w-full space-y-4">
@@ -123,10 +143,10 @@ const RespectiveDeployment = () => {
 
                 <span
                   className={`text-sm px-3 py-1 rounded-full font-medium ${deployment.deploymentStatus === "SUCCESS"
-                      ? "bg-green-500 text-white"
-                      : deployment.deploymentStatus === "FAILED"
-                        ? "bg-red-500 text-white"
-                        : "bg-yellow-300 text-yellow-800"
+                    ? "bg-green-500 text-white"
+                    : deployment.deploymentStatus === "FAILED"
+                      ? "bg-red-500 text-white"
+                      : "bg-yellow-300 text-yellow-800"
                     }`}
                 >
                   {deployment.deploymentStatus.toUpperCase()}

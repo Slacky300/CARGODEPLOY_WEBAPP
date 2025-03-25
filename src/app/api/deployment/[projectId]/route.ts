@@ -55,6 +55,9 @@ export const GET = async (req: NextRequest, { params }: { params: Promise<{ proj
     const deployments = await prisma.deployment.findMany({
         where: {
             projectId: projectId
+        },
+        orderBy: {
+            createdAt: 'desc'
         }
     });
 
@@ -70,8 +73,9 @@ export const GET = async (req: NextRequest, { params }: { params: Promise<{ proj
             commitMsg: deployment.commitMsg,
             commitAuthor: deployment.commitAuthor
         })),
-        project
-
+        project,
+        githubRepoOwner: project.gitHubRepoURL.split("/").at(-2),
+        isPrivate: project.isPrivate
     }
 
     return NextResponse.json({

@@ -26,7 +26,7 @@ const ViewDeployment = () => {
       return data.deployment;
     },
   });
-
+  
   const { data: logsData } = useQuery({
     queryKey: ["logs", deploymentId],
     queryFn: async () => {
@@ -53,7 +53,7 @@ const ViewDeployment = () => {
           return;
         }
         // Add new logs at the beginning of the array
-        setLogs((prevLogs) => [payload.logs, ...prevLogs]);
+        setLogs((prevLogs) => [...prevLogs, payload.logs]);
       }
     });
 
@@ -65,9 +65,10 @@ const ViewDeployment = () => {
   // Scroll to top when new logs are added
   useEffect(() => {
     if (terminalRef.current) {
-      terminalRef.current.scrollTop = 0;
+      terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
     }
   }, [logs]);
+  
 
   if (isLoading) {
     return (
