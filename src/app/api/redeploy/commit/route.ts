@@ -20,7 +20,6 @@ export const POST = async (req: NextRequest) => {
 
         // Fetch user, deployment, project, and environment variables in a single transaction
         const user = await prisma.user.findUnique({ where: { externalId: userId } });
-        console.log("User:", user);
         const project = await prisma.project.findFirst({
             where: { id: deploymentId },
             select: {
@@ -35,8 +34,8 @@ export const POST = async (req: NextRequest) => {
                 isPrivate: true
             }
         });
-        console.log("Project:", project);
 
+        if (!user) return NextResponse.json({ success: false, error: "User not found" }, { status: 404 });
         if (!project) return NextResponse.json({ success: false, error: "Project not found" }, { status: 404 });
 
         const environmentVariables = await prisma.environmentVariables.findMany({
@@ -47,65 +46,92 @@ export const POST = async (req: NextRequest) => {
         const updatedEnvironmentVariables = environmentVariables.map(({ key, value }) => ({
             name: key,
             value: value
-          }));
-          
+        }));
 
-        if (!user) return NextResponse.json({ success: false, error: "User not found" }, { status: 404 });
-        if (!project) return NextResponse.json({ success: false, error: "Project not found" }, { status: 404 });
+        // Check if a deployment is already in progress for this project
+        const deploymentInProgress = await prisma.deployment.findFirst({
+            where: { projectId: project.id, status: "IN_PROGRESS" }
+        });
 
-        // Create a new deployment atomically
+        // Create new deployment with initial status based on whether another deployment is in progress
+        const initialStatus = deploymentInProgress ? "PENDING" : "IN_PROGRESS";
+        
         const createNewDeployment = await prisma.deployment.create({
             data: {
                 projectId: project.id,
-                status: "PENDING",
+                status: initialStatus,
                 commitId: commit,
                 commitMsg: commitMessage || "",
                 commitAuthor: commitAuthor || ""
             }
         });
 
-        let token = "";
-        if (project.isPrivate) {
+        // If no deployment is in progress, trigger the build immediately
+        if (initialStatus === "IN_PROGRESS") {
+            let token = "";
+            if (project.isPrivate) {
+                try {
+                    const resultForToken = await fetch(`/api/token`, {
+                        method: "GET",
+                        headers: { "Content-Type": "application/json", "x-api-key": `${process.env.API_KEY}` }
+                    });
+
+                    if (resultForToken.ok) {
+                        const tokenFromAPI = await resultForToken.json();
+                        token = tokenFromAPI.token || "";
+                    }
+                } catch (error) {
+                    console.error("Error fetching token:", error);
+                }
+            }
+
+            const payloadForJob = {
+                git_url: project.gitHubRepoURL,
+                project_id: project.slugIdentifier,
+                root_folder: project.rootDir,
+                env_variables: JSON.stringify(updatedEnvironmentVariables),
+                name: project.name,
+                build_command: project.buildCommand,
+                install_command: project.installCommand,
+                access_token: token,
+                branch: project.branch,
+                deployment_id: createNewDeployment.id,
+                commit_sha: commit
+            };
+
             try {
-                const resultForToken = await fetch(`/api/token`, {
-                    method: "GET",
-                    headers: { "Content-Type": "application/json", "x-api-key": `${process.env.API_KEY}` }
+                const triggerK8sJob = await fetch(`${process.env.BACKEND_URL}/jobs/create`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payloadForJob)
                 });
 
-                if (resultForToken.ok) {
-                    const tokenFromAPI = await resultForToken.json();
-                    token = tokenFromAPI.token || "";
+                if (!triggerK8sJob.ok) {
+                    await prisma.deployment.update({
+                        where: { id: createNewDeployment.id },
+                        data: { status: "FAILED" }
+                    });
+                    return NextResponse.json({ success: false, error: "Error triggering job" }, { status: 500 });
                 }
             } catch (error) {
-                console.error("Error fetching token:", error);
+                console.error("Error triggering K8s job:", error);
+                await prisma.deployment.update({
+                    where: { id: createNewDeployment.id },
+                    data: { status: "FAILED" }
+                });
+                return NextResponse.json({ success: false, error: "Error triggering job" }, { status: 500 });
             }
+        } else {
+            console.log(`Deployment ${createNewDeployment.id} added to queue (PENDING status)`);
         }
 
-        const payloadForJob = {
-            git_url: project.gitHubRepoURL,
-            project_id: project.slugIdentifier,
-            root_folder: project.rootDir,
-            env_variables: JSON.stringify(updatedEnvironmentVariables),
-            name: project.name,
-            build_command: project.buildCommand,
-            install_command: project.installCommand,
-            access_token: token,
-            branch: project.branch,
-            deployment_id: createNewDeployment.id,
-            commit_sha: commit
-        };
-
-        const triggerK8sJob = await fetch(`${process.env.BACKEND_URL}/jobs/create`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payloadForJob)
-        });
-
-        if (!triggerK8sJob.ok) {
-            return NextResponse.json({ success: false, error: "Error triggering job" }, { status: 500 });
-        }
-
-        return NextResponse.json({ success: true, data: createNewDeployment }, { status: 201 });
+        return NextResponse.json({
+            success: true,
+            data: {
+                ...createNewDeployment,
+                queuedBehindDeployment: deploymentInProgress ? deploymentInProgress.id : null
+            }
+        }, { status: 201 });
 
     } catch (error) {
         console.error("Error in deployment API:", error);

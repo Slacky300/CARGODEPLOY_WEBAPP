@@ -153,7 +153,7 @@ export const POST = async (req: NextRequest) => {
         const newDeployment = await tx.deployment.create({
             data: {
                 projectId: project.id,
-                status: "PENDING",
+                status: "IN_PROGRESS",
                 commitId: commit,
                 commitMsg: commitMessage,
                 commitAuthor: commitAuthor
