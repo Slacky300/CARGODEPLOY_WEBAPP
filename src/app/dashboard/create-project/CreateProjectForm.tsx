@@ -192,7 +192,7 @@ const CreateProjectForm = ({
   const getFolderPathData = (data: string) => {
    
 
-    setValue("rootDir", data.toString().slice(1));
+    setValue("rootDir", data.toString());
 
   }
 
